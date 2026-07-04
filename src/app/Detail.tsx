@@ -32,7 +32,7 @@ export function Detail({ recipe, data, onBack, onNavigate }: Props) {
   const [seed, setSeed] = useState(1);
   const [t, setT] = useState(1);
   const [playing, setPlaying] = useState(false);
-  const [duration, setDuration] = useState(6);
+  const [duration, setDuration] = useState(10);
   const [busy, setBusy] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
 
@@ -168,7 +168,7 @@ export function Detail({ recipe, data, onBack, onNavigate }: Props) {
                   value={duration}
                   min={1}
                   max={60}
-                  onChange={(e) => setDuration(parseFloat(e.target.value || '6'))}
+                  onChange={(e) => setDuration(parseFloat(e.target.value || '10'))}
                 />
               </label>
 

@@ -75,8 +75,8 @@ const recipe: CanvasRecipe<
   ],
   params: {
     palette: { type: 'select', label: 'Palette', default: 'ember-slate', options: PALETTE_NAMES },
-    gap: { type: 'number', label: 'Tile gap', default: 6, min: 0, max: 24, step: 1 },
-    roughness: { type: 'number', label: 'Edge roughness', default: 10, min: 0, max: 40, step: 1 },
+    gap: { type: 'number', label: 'Tile gap', default: 12, min: 0, max: 24, step: 1 },
+    roughness: { type: 'number', label: 'Edge roughness', default: 18, min: 0, max: 40, step: 1 },
     filenames: { type: 'boolean', label: 'Filenames', default: true },
   },
   prepare(data: RepoDataset) {

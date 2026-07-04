@@ -28,7 +28,7 @@ const recipe: CanvasRecipe<{
     palette: { type: 'select', label: 'Palette', default: 'clay-sea', options: PALETTE_NAMES },
     turns: { type: 'number', label: 'Spiral turns', default: 5, min: 2, max: 12, step: 0.5 },
     timeAxis: { type: 'select', label: 'Time axis', default: 's01', options: ['t01', 's01'] },
-    sprayLength: { type: 'number', label: 'Spray length', default: 170, min: 30, max: 500, step: 10 },
+    sprayLength: { type: 'number', label: 'Spray length', default: 210, min: 30, max: 500, step: 10 },
     wobble: { type: 'number', label: 'Wobble', default: 0.35, min: 0, max: 1.5, step: 0.05 },
   },
   render(ctx, frame, params) {

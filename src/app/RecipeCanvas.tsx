@@ -40,14 +40,16 @@ interface Props {
   queued?: boolean;
   /** Playback mode: render smaller + lower quality for smooth fps. */
   draft?: boolean;
+  /** Explicit quality override (0..1) without shrinking the canvas — used by thumbnails. */
+  quality?: number;
   onClick?: () => void;
 }
 
-export function RecipeCanvas({ recipe, data, params, seed, t, pixelWidth, queued, draft, onClick }: Props) {
+export function RecipeCanvas({ recipe, data, params, seed, t, pixelWidth, queued, draft, quality: qualityProp, onClick }: Props) {
   const ref = useRef<HTMLCanvasElement>(null);
   const jobRef = useRef<Job | null>(null);
   const width = draft ? Math.round(pixelWidth / 2) : pixelWidth;
-  const quality = draft ? 0.4 : 1;
+  const quality = draft ? 0.4 : (qualityProp ?? 1);
 
   useEffect(() => {
     const canvas = ref.current;

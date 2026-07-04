@@ -107,6 +107,7 @@ export function App() {
                 t={1}
                 pixelWidth={480}
                 queued
+                quality={0.4}
               />
               <div className="label">
                 {r.name} · {r.family}
