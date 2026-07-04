@@ -29,6 +29,7 @@ function gridPos(t01: number, frame: Frame, margin: number): GridPos {
 
 const recipe: CanvasRecipe<{
   palette: { type: 'select'; label: string; default: string; options: string[] };
+  timeAxis: { type: 'select'; label: string; default: string; options: string[] };
   strokesPerEvent: { type: 'number'; label: string; default: number; min: number; max: number; step: number };
   strokeLength: { type: 'number'; label: string; default: number; min: number; max: number; step: number };
   gravity: { type: 'number'; label: string; default: number; min: number; max: number; step: number };
@@ -42,6 +43,7 @@ const recipe: CanvasRecipe<{
   family: 'flow',
   params: {
     palette: { type: 'select', label: 'Palette', default: 'france-senegal', options: PALETTE_NAMES },
+    timeAxis: { type: 'select', label: 'Time axis', default: 's01', options: ['s01', 't01'] },
     strokesPerEvent: { type: 'number', label: 'Strokes / event', default: 6, min: 1, max: 24, step: 1 },
     strokeLength: { type: 'number', label: 'Stroke length', default: 340, min: 60, max: 900, step: 10 },
     gravity: { type: 'number', label: 'Goal gravity', default: 0.55, min: 0, max: 1.5, step: 0.05 },
@@ -56,7 +58,8 @@ const recipe: CanvasRecipe<{
     paper(ctx, frame, pal.paper);
     dataTexture(ctx, frame, pal.ink, 0.07);
 
-    const goals = data.events.filter((e) => e.isGoal).map((e) => ({ e, p: gridPos(e.t01, frame, margin) }));
+    const axis = params.timeAxis as 's01' | 't01';
+    const goals = data.events.filter((e) => e.isGoal).map((e) => ({ e, p: gridPos(e[axis], frame, margin) }));
     const fileEvents = data.events.filter((e) => e.kind === 'file-change');
     const drama = (t01: number) => {
       const b = data.buckets[Math.min(data.buckets.length - 1, Math.floor(t01 * data.buckets.length))];
@@ -86,8 +89,8 @@ const recipe: CanvasRecipe<{
 
     // Strokes for events with t01 <= t (this is the animation).
     for (const e of fileEvents) {
-      if (e.t01 > t) continue;
-      const origin = gridPos(e.t01, frame, margin);
+      if (e[axis] > t) continue;
+      const origin = gridPos(e[axis], frame, margin);
       const additionSide = e.additions >= e.deletions;
       const color = additionSide ? pal.a : pal.b;
       const dir = additionSide ? -1 : 1; // additions flow left, deletions right
@@ -131,7 +134,7 @@ const recipe: CanvasRecipe<{
     ctx.save();
     ctx.font = '600 20px ui-monospace, Menlo, monospace';
     for (const g of goals) {
-      if (g.e.t01 > t) continue;
+      if (g.e[axis] > t) continue;
       ctx.fillStyle = pal.ink;
       ctx.beginPath();
       ctx.arc(g.p.x, g.p.y, 6, 0, Math.PI * 2);
