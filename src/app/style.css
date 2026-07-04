@@ -1,0 +1,61 @@
+* { box-sizing: border-box; margin: 0; }
+
+body {
+  font-family: ui-monospace, Menlo, monospace;
+  background: #191919;
+  color: #e8e5de;
+}
+
+.app { display: flex; flex-direction: column; min-height: 100vh; }
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 24px;
+  border-bottom: 1px solid #333;
+}
+.topbar h1 { font-size: 15px; font-weight: 600; letter-spacing: 0.08em; }
+.topbar select {
+  background: #232323;
+  color: inherit;
+  border: 1px solid #444;
+  padding: 6px 10px;
+  font: inherit;
+}
+
+.status { padding: 40px; color: #999; }
+
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
+  padding: 24px;
+}
+.thumb { cursor: pointer; background: none; border: none; padding: 0; text-align: left; color: inherit; font: inherit; }
+.thumb canvas { width: 100%; display: block; border: 1px solid #333; }
+.thumb:hover canvas { border-color: #888; }
+.thumb .label { margin-top: 8px; font-size: 12px; color: #aaa; }
+
+.detail { display: flex; gap: 24px; padding: 24px; align-items: flex-start; }
+.detail .canvas-wrap { flex: 1; display: flex; justify-content: center; }
+.detail canvas { max-height: calc(100vh - 180px); max-width: 100%; border: 1px solid #333; }
+
+.panel { width: 280px; flex-shrink: 0; display: flex; flex-direction: column; gap: 14px; }
+.panel h2 { font-size: 14px; }
+.panel .desc { font-size: 12px; color: #999; line-height: 1.5; }
+.panel label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #bbb; }
+.panel input[type='range'] { width: 100%; }
+.panel select, .panel input[type='number'], .panel input[type='text'] {
+  background: #232323; color: inherit; border: 1px solid #444; padding: 4px 8px; font: inherit; font-size: 12px;
+}
+.panel .row { display: flex; gap: 8px; align-items: center; }
+.panel button {
+  background: #2c2c2c; color: inherit; border: 1px solid #555; padding: 8px 12px;
+  font: inherit; font-size: 12px; cursor: pointer;
+}
+.panel button:hover { background: #3a3a3a; }
+.panel .back { align-self: flex-start; }
+
+.scrubber { display: flex; gap: 10px; align-items: center; font-size: 12px; }
+.scrubber input { flex: 1; }

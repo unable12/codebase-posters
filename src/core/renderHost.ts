@@ -1,5 +1,5 @@
 import type { RepoDataset } from './schema';
-import type { ParamValues, Recipe } from './types';
+import type { AnyParams, Recipe } from './types';
 import { DESIGN_HEIGHT, DESIGN_WIDTH } from './types';
 import { hashString, makeNoise, makeRng } from './rng';
 
@@ -10,7 +10,7 @@ interface PrepareCache {
 
 const prepareCaches = new WeakMap<Recipe, PrepareCache>();
 
-function getPrepared(recipe: Recipe, data: RepoDataset, params: ParamValues, seed: number): unknown {
+function getPrepared(recipe: Recipe, data: RepoDataset, params: AnyParams, seed: number): unknown {
   if (!recipe.prepare) return undefined;
   const key = `${data.meta.headSha}|${JSON.stringify(params)}|${seed}`;
   const hit = prepareCaches.get(recipe);
@@ -29,7 +29,7 @@ export function renderFrame(
   canvas: HTMLCanvasElement | OffscreenCanvas,
   recipe: Recipe,
   data: RepoDataset,
-  params: ParamValues,
+  params: AnyParams,
   seed: number,
   t: number,
 ): void {

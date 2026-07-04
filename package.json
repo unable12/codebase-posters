@@ -20,5 +20,8 @@
     "@vitejs/plugin-react": "^4.5.0",
     "typescript": "^5.8.0",
     "vite": "^6.3.0"
+  },
+  "allowScripts": {
+    "esbuild@0.25.12": true
   }
 }

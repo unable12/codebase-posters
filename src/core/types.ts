@@ -9,7 +9,7 @@ export type ParamDef =
 
 export type ParamSchema = Record<string, ParamDef>;
 
-export type ParamValues<S extends ParamSchema = ParamSchema> = {
+export type ParamValues<S extends ParamSchema> = {
   [K in keyof S]: S[K] extends { type: 'number' }
     ? number
     : S[K] extends { type: 'boolean' }
@@ -17,10 +17,13 @@ export type ParamValues<S extends ParamSchema = ParamSchema> = {
       : string;
 };
 
-export function defaultParams<S extends ParamSchema>(schema: S): ParamValues<S> {
-  const out: Record<string, unknown> = {};
+/** Loosely-typed param bag used by the app shell; recipes see ParamValues<S>. */
+export type AnyParams = Record<string, number | boolean | string>;
+
+export function defaultParams(schema: ParamSchema): AnyParams {
+  const out: AnyParams = {};
   for (const [k, def] of Object.entries(schema)) out[k] = def.default;
-  return out as ParamValues<S>;
+  return out;
 }
 
 /** Everything a recipe gets per render call. width/height are DESIGN units (host pre-scales). */
