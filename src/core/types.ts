@@ -45,6 +45,8 @@ export interface CanvasRecipe<S extends ParamSchema = ParamSchema, P = unknown> 
   name: string;
   description: string;
   family: RecipeFamily;
+  /** "How to read this" legend: what colors, shapes, and motion represent. */
+  meaning: { label: string; text: string }[];
   params: S;
   /** Optional precompute, memoized on (data, params, seed). Keeps render a pure lookup. */
   prepare?(data: RepoDataset, params: ParamValues<S>, seed: number): P;

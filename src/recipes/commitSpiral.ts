@@ -14,8 +14,16 @@ const recipe: CanvasRecipe<{
   engine: 'canvas2d',
   id: '02-commit-spiral',
   name: 'Commit Spiral',
-  description: 'The repo lifetime as an inward spiral; events spray outward or inward by add/delete balance.',
+  description: 'The whole life of the repo coiled into one spiral — a tree ring of your work.',
   family: 'timeline',
+  meaning: [
+    { label: 'The spiral', text: 'Time coils inward: the outer rim is the first commit, the center is now. Like a tree ring read backwards.' },
+    { label: 'Outward sprays (color A)', text: 'File changes that mostly added code — they radiate out, the project expanding.' },
+    { label: 'Inward sprays (color B)', text: 'Changes that mostly deleted — they point toward the center, the project contracting.' },
+    { label: 'Spray length', text: 'Size of the change. Long bursts are big edits.' },
+    { label: 'Dots with dates', text: 'The biggest commits, pinned to the moment they happened on the coil.' },
+    { label: 'Animation', text: 'The spiral draws itself from the outside in — history spinning toward the present.' },
+  ],
   params: {
     palette: { type: 'select', label: 'Palette', default: 'clay-sea', options: PALETTE_NAMES },
     turns: { type: 'number', label: 'Spiral turns', default: 5, min: 2, max: 12, step: 0.5 },

@@ -11,23 +11,48 @@ import { exportFrames } from '../export/frames';
 interface Props {
   recipe: Recipe;
   data: RepoDataset;
+  index: number;
+  count: number;
   onBack: () => void;
+  /** dir: -1 previous, +1 next */
+  onNavigate: (dir: number) => void;
 }
 
-export function Detail({ recipe, data, onBack }: Props) {
+export function Detail({ recipe, data, index, count, onBack, onNavigate }: Props) {
   const [params, setParams] = useState<AnyParams>(() => defaultParams(recipe.params));
   const [seed, setSeed] = useState(1);
   const [t, setT] = useState(1);
   const [playing, setPlaying] = useState(false);
   const [duration, setDuration] = useState(6);
   const [busy, setBusy] = useState<string | null>(null);
+  const [showMeaning, setShowMeaning] = useState(true);
 
-  useEffect(() => setParams(defaultParams(recipe.params)), [recipe]);
+  useEffect(() => {
+    setParams(defaultParams(recipe.params));
+    setT(1);
+    setPlaying(false);
+  }, [recipe]);
 
   useEffect(() => {
     if (!playing) return;
     return playLoop(duration * 1000, setT);
   }, [playing, duration]);
+
+  // gallery-style keyboard navigation
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLSelectElement) return;
+      if (e.key === 'ArrowLeft') onNavigate(-1);
+      else if (e.key === 'ArrowRight') onNavigate(1);
+      else if (e.key === 'Escape') onBack();
+      else if (e.key === ' ') {
+        e.preventDefault();
+        setPlaying((p) => !p);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onNavigate, onBack]);
 
   const displayWidth = useMemo(
     () => Math.min(900, Math.floor(window.innerHeight * 0.75 * 0.75)),
@@ -36,6 +61,9 @@ export function Detail({ recipe, data, onBack }: Props) {
 
   return (
     <div className="detail">
+      <button className="nav-arrow" onClick={() => onNavigate(-1)} title="previous (←)">
+        ‹
+      </button>
       <div className="canvas-wrap">
         <RecipeCanvas
           recipe={recipe}
@@ -46,10 +74,32 @@ export function Detail({ recipe, data, onBack }: Props) {
           pixelWidth={displayWidth * 2}
         />
       </div>
+      <button className="nav-arrow" onClick={() => onNavigate(1)} title="next (→)">
+        ›
+      </button>
       <div className="panel">
-        <button className="back" onClick={onBack}>← gallery</button>
+        <div className="row" style={{ justifyContent: 'space-between' }}>
+          <button className="back" onClick={onBack}>← gallery</button>
+          <span style={{ color: '#777', fontSize: 12 }}>
+            {index + 1} / {count}
+          </span>
+        </div>
         <h2>{recipe.name}</h2>
         <p className="desc">{recipe.description}</p>
+
+        <button onClick={() => setShowMeaning((s) => !s)}>
+          {showMeaning ? 'hide' : 'how to read this'}
+        </button>
+        {showMeaning && (
+          <dl className="meaning">
+            {recipe.meaning.map((m) => (
+              <div key={m.label}>
+                <dt>{m.label}</dt>
+                <dd>{m.text}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
 
         <ControlPanel schema={recipe.params} values={params} onChange={setParams} />
 

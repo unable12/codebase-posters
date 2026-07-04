@@ -28,10 +28,16 @@ const recipe: CanvasRecipe<
   engine: 'canvas2d',
   id: '17-char-flow',
   name: 'Character Flow Field',
-  description: 'The raw text of the repo becomes a wind field; particles ride it. Code is literally the weather.',
+  description: 'Your source text turned into wind; particles ride it and leave trails.',
   family: 'particles',
+  meaning: [
+    { label: 'The wind', text: 'Invisible, but everywhere: the poster is divided into a grid, and each region’s wind direction comes from the actual characters of your code at that position. Different code = different weather. This poster cannot be forged — it is derived from the text itself.' },
+    { label: 'Trails', text: 'Particles dropped onto the canvas and carried by that wind. Where trails bunch and curl, the underlying text has repetitive structure; where they scatter, the text is chaotic.' },
+    { label: 'Two colors', text: 'Split by the repo’s language balance — if 70% of the repo is markdown, ~70% of particles carry color A.' },
+    { label: 'Animation', text: 'The particles take flight: every trail grows from its seed point simultaneously.' },
+  ],
   params: {
-    palette: { type: 'select', label: 'Palette', default: 'france-senegal', options: PALETTE_NAMES },
+    palette: { type: 'select', label: 'Palette', default: 'cobalt-mint', options: PALETTE_NAMES },
     particles: { type: 'number', label: 'Particles', default: 700, min: 100, max: 3000, step: 50 },
     swirl: { type: 'number', label: 'Swirl', default: 2.2, min: 0.5, max: 6, step: 0.1 },
     stepSize: { type: 'number', label: 'Step size', default: 9, min: 3, max: 24, step: 1 },

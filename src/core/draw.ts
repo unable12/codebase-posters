@@ -10,11 +10,13 @@ export interface Palette {
 }
 
 export const PALETTES: Palette[] = [
-  { name: 'france-senegal', paper: '#f6f4ec', a: '#2a4fd7', b: '#2fbf9a', ink: '#1c1c1c' },
+  { name: 'cobalt-mint', paper: '#f6f4ec', a: '#2a4fd7', b: '#2fbf9a', ink: '#1c1c1c' },
   { name: 'clay-sea', paper: '#f5efe4', a: '#c4502e', b: '#22668c', ink: '#221d18' },
   { name: 'violet-lime', paper: '#f4f2ee', a: '#5b3fd4', b: '#8bc34a', ink: '#1f1b2e' },
   { name: 'ember-slate', paper: '#f2ede6', a: '#d94f30', b: '#3f4a5a', ink: '#20242b' },
   { name: 'rose-forest', paper: '#f7f1ea', a: '#c2405f', b: '#2e6b4f', ink: '#231a1d' },
+  { name: 'ochre-indigo', paper: '#f7f2e7', a: '#d99a2b', b: '#3a3f8f', ink: '#26221a' },
+  { name: 'coral-teal', paper: '#f5f1ea', a: '#e8604c', b: '#177e89', ink: '#22201d' },
 ];
 
 export function palette(name: string): Palette {
@@ -40,7 +42,7 @@ export function paper(ctx: CanvasRenderingContext2D, frame: Frame, color: string
 }
 
 /**
- * GenCup signature: raw dataset text tiled faintly across the poster.
+ * Raw dataset text tiled faintly across the poster — the data as watermark.
  * Deterministic (uses its own rng stream from frame.rng).
  */
 export function dataTexture(

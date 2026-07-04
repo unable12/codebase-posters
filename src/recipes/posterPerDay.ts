@@ -14,8 +14,16 @@ const recipe: CanvasRecipe<{
   engine: 'canvas2d',
   id: '11-poster-per-day',
   name: 'One Poster Per Day',
-  description: 'Each active day is a mini-poster; the series is the artwork. Storms on dramatic days.',
+  description: 'Every working day gets its own small poster; the series together is the diary.',
   family: 'timeline',
+  meaning: [
+    { label: 'Cards', text: 'One card per day you actually committed, in order. Empty days don’t exist here — this is a diary of work, not a calendar.' },
+    { label: 'Rising strokes (color A)', text: 'Additions — code growing upward from the ground of the card.' },
+    { label: 'Falling strokes (color B)', text: 'Deletions — code raining away from the top.' },
+    { label: 'Wildness', text: 'The day’s drama: bursty, high-churn days get more strokes, more bend, more storm. Calm days stay sparse and quiet.' },
+    { label: 'Caption', text: 'Date, commit count, and +/- line totals for that day.' },
+    { label: 'Animation', text: 'Days appear one by one, chronologically — flipping through the diary.' },
+  ],
   params: {
     palette: { type: 'select', label: 'Palette', default: 'rose-forest', options: PALETTE_NAMES },
     columns: { type: 'number', label: 'Columns', default: 3, min: 2, max: 6, step: 1 },

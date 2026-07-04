@@ -37,9 +37,25 @@ body {
 .thumb:hover canvas { border-color: #888; }
 .thumb .label { margin-top: 8px; font-size: 12px; color: #aaa; }
 
-.detail { display: flex; gap: 24px; padding: 24px; align-items: flex-start; }
+.detail { display: flex; gap: 16px; padding: 24px; align-items: flex-start; }
 .detail .canvas-wrap { flex: 1; display: flex; justify-content: center; }
 .detail canvas { max-height: calc(100vh - 180px); max-width: 100%; border: 1px solid #333; }
+
+.nav-arrow {
+  align-self: center;
+  background: none;
+  border: 1px solid #444;
+  color: #ccc;
+  font-size: 28px;
+  line-height: 1;
+  padding: 18px 14px;
+  cursor: pointer;
+}
+.nav-arrow:hover { background: #2c2c2c; border-color: #888; }
+
+.meaning { display: flex; flex-direction: column; gap: 10px; border-left: 2px solid #444; padding-left: 12px; }
+.meaning dt { font-size: 12px; font-weight: 600; color: #ddd; }
+.meaning dd { font-size: 12px; color: #999; line-height: 1.5; margin: 2px 0 0; }
 
 .panel { width: 280px; flex-shrink: 0; display: flex; flex-direction: column; gap: 14px; }
 .panel h2 { font-size: 14px; }

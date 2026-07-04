@@ -46,8 +46,16 @@ const recipe: CanvasRecipe<
   engine: 'canvas2d',
   id: '06-radial-tree',
   name: 'Radial Tree Burst',
-  description: 'The directory tree exploding from the center; branch length by depth, marks by file size, color by churn.',
+  description: 'The folder structure as a plant seen from above, growing out of the repo root.',
   family: 'structure',
+  meaning: [
+    { label: 'The center', text: 'The repo root. Everything grows outward from it.' },
+    { label: 'Branches', text: 'Folders. Each ring outward is one level deeper in the directory tree; a branch’s slice of the circle is proportional to how much lives inside it.' },
+    { label: 'End dots', text: 'Files, sized by how many bytes they hold.' },
+    { label: 'Warm strokes (color A)', text: 'Hot paths — files and folders with lots of churn (heavily edited).' },
+    { label: 'Cool strokes (color B)', text: 'Cold paths — rarely touched since they were created.' },
+    { label: 'Animation', text: 'The tree grows ring by ring from the root — the structure unfolding.' },
+  ],
   params: {
     palette: { type: 'select', label: 'Palette', default: 'violet-lime', options: PALETTE_NAMES },
     ringGap: { type: 'number', label: 'Ring gap', default: 300, min: 60, max: 300, step: 5 },

@@ -64,8 +64,15 @@ const recipe: CanvasRecipe<
   engine: 'canvas2d',
   id: '07-treemap-fresco',
   name: 'Treemap Fresco',
-  description: 'Every file a painted tile sized by bytes; color by recency, weight by churn, names as whispers.',
+  description: 'The repo as a wall of painted tiles — every file gets the space it takes up.',
   family: 'structure',
+  meaning: [
+    { label: 'Tiles', text: 'One tile per file. Its area is the file’s size in bytes — big tiles are big files.' },
+    { label: 'Color blend', text: 'Recency. Tiles shift toward color A when recently edited, toward color B when untouched for long. You can see at a glance where the live edge of the project is.' },
+    { label: 'Opacity / weight', text: 'Churn — how much this file has been rewritten over its life. Bold tiles are battlegrounds; pale ones were written once and left alone.' },
+    { label: 'Rough painted edges', text: 'Intentional imperfection — each tile is brushed, not drawn, so the wall reads as a fresco rather than a chart.' },
+    { label: 'Animation', text: 'Tiles appear the moment their file was first created — the codebase assembling itself in order.' },
+  ],
   params: {
     palette: { type: 'select', label: 'Palette', default: 'ember-slate', options: PALETTE_NAMES },
     gap: { type: 'number', label: 'Tile gap', default: 6, min: 0, max: 24, step: 1 },

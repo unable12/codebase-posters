@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import type { RepoDataset, RepoListing } from '../core/schema';
-import type { Recipe } from '../core/types';
 import { defaultParams } from '../core/types';
 import { recipes } from '../core/registry';
 import { fetchDataset, fetchRepos } from './api';
@@ -12,14 +11,13 @@ export function App() {
   const [repoPath, setRepoPath] = useState<string>('');
   const [data, setData] = useState<RepoDataset | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [selected, setSelected] = useState<Recipe | null>(null);
+  const [selected, setSelected] = useState<number | null>(null);
 
   useEffect(() => {
     fetchRepos()
       .then((r) => {
         setRepos(r);
-        const preferred =
-          r.find((x) => x.name === 'lighthouse') ?? r[0];
+        const preferred = r.find((x) => x.name === 'lighthouse') ?? r[0];
         if (preferred) setRepoPath(preferred.path);
       })
       .catch((e) => setError(String(e)));
@@ -56,10 +54,10 @@ export function App() {
       {error && <div className="status">error: {error}</div>}
       {!error && !data && <div className="status">extracting…</div>}
 
-      {data && !selected && (
+      {data && selected === null && (
         <div className="gallery">
-          {recipes.map((r) => (
-            <button key={r.id} className="thumb" onClick={() => setSelected(r)}>
+          {recipes.map((r, i) => (
+            <button key={r.id} className="thumb" onClick={() => setSelected(i)}>
               <RecipeCanvas
                 recipe={r}
                 data={data}
@@ -67,6 +65,7 @@ export function App() {
                 seed={1}
                 t={1}
                 pixelWidth={480}
+                queued
               />
               <div className="label">
                 {r.name} · {r.family}
@@ -76,7 +75,16 @@ export function App() {
         </div>
       )}
 
-      {data && selected && <Detail recipe={selected} data={data} onBack={() => setSelected(null)} />}
+      {data && selected !== null && (
+        <Detail
+          recipe={recipes[selected]}
+          data={data}
+          index={selected}
+          count={recipes.length}
+          onBack={() => setSelected(null)}
+          onNavigate={(dir) => setSelected((selected + dir + recipes.length) % recipes.length)}
+        />
+      )}
     </div>
   );
 }
