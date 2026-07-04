@@ -39,7 +39,13 @@ body {
 
 .detail { display: flex; gap: 16px; padding: 24px; align-items: flex-start; }
 .detail .canvas-wrap { flex: 1; display: flex; justify-content: center; }
-.detail canvas { max-height: calc(100vh - 180px); max-width: 100%; border: 1px solid #333; }
+.detail canvas {
+  width: auto;
+  height: auto;
+  max-height: calc(100vh - 130px);
+  max-width: 100%;
+  border: 1px solid #333;
+}
 
 .nav-arrow {
   align-self: center;
@@ -53,25 +59,96 @@ body {
 }
 .nav-arrow:hover { background: #2c2c2c; border-color: #888; }
 
-.meaning { display: flex; flex-direction: column; gap: 10px; border-left: 2px solid #444; padding-left: 12px; }
-.meaning dt { font-size: 12px; font-weight: 600; color: #ddd; }
-.meaning dd { font-size: 12px; color: #999; line-height: 1.5; margin: 2px 0 0; }
+/* ---- right panel ---- */
 
-.panel { width: 280px; flex-shrink: 0; display: flex; flex-direction: column; gap: 14px; }
-.panel h2 { font-size: 14px; }
-.panel .desc { font-size: 12px; color: #999; line-height: 1.5; }
-.panel label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #bbb; }
-.panel input[type='range'] { width: 100%; }
-.panel select, .panel input[type='number'], .panel input[type='text'] {
-  background: #232323; color: inherit; border: 1px solid #444; padding: 4px 8px; font: inherit; font-size: 12px;
-}
+.panel { width: 300px; flex-shrink: 0; display: flex; flex-direction: column; gap: 14px; }
+.panel h2 { font-size: 15px; letter-spacing: 0.02em; }
+.panel .desc { font-size: 12px; color: #999; line-height: 1.55; }
+.panel .counter { color: #777; font-size: 12px; }
 .panel .row { display: flex; gap: 8px; align-items: center; }
+.panel .space-between { justify-content: space-between; }
 .panel button {
   background: #2c2c2c; color: inherit; border: 1px solid #555; padding: 8px 12px;
   font: inherit; font-size: 12px; cursor: pointer;
 }
 .panel button:hover { background: #3a3a3a; }
+.panel button.active { background: #3a3a3a; border-color: #999; }
 .panel .back { align-self: flex-start; }
+
+.actions { display: flex; gap: 8px; }
+.actions button { flex: 1; }
+
+/* ---- controls ---- */
+
+.panel label { display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: #bbb; }
+.panel .param-head { display: flex; justify-content: space-between; }
+.panel .param-value { color: #777; font-variant-numeric: tabular-nums; }
+.panel .check-row {
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+.panel .check-row input { margin: 0; }
+.panel select, .panel input[type='number'], .panel input[type='text'] {
+  background: #232323; color: inherit; border: 1px solid #444; padding: 5px 8px; font: inherit; font-size: 12px;
+  width: 100%;
+}
+.panel .row input[type='number'] { flex: 1; width: auto; }
+
+/* smooth custom sliders */
+.panel input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 18px;
+  background: transparent;
+  cursor: pointer;
+  margin: 0;
+}
+.panel input[type='range']::-webkit-slider-runnable-track {
+  height: 3px;
+  background: #4a4a4a;
+  border-radius: 2px;
+}
+.panel input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #e8e5de;
+  border: none;
+  margin-top: -5px;
+  transition: transform 0.1s ease;
+}
+.panel input[type='range']:hover::-webkit-slider-thumb { transform: scale(1.25); }
+.panel input[type='range']::-moz-range-track {
+  height: 3px;
+  background: #4a4a4a;
+  border-radius: 2px;
+}
+.panel input[type='range']::-moz-range-thumb {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #e8e5de;
+  border: none;
+}
 
 .scrubber { display: flex; gap: 10px; align-items: center; font-size: 12px; }
 .scrubber input { flex: 1; }
+.scrubber .counter { min-width: 34px; text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ---- sliding drawers (meaning <-> edit controls) ---- */
+
+.drawer {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s ease, opacity 0.3s ease;
+  opacity: 0;
+}
+.drawer.open { grid-template-rows: 1fr; opacity: 1; }
+.drawer-inner { overflow: hidden; display: flex; flex-direction: column; gap: 14px; }
+
+.meaning { display: flex; flex-direction: column; gap: 10px; border-left: 2px solid #444; padding-left: 12px; }
+.meaning dt { font-size: 12px; font-weight: 600; color: #ddd; }
+.meaning dd { font-size: 12px; color: #999; line-height: 1.5; margin: 2px 0 0; }

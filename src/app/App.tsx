@@ -77,6 +77,7 @@ export function App() {
 
       {data && selected !== null && (
         <Detail
+          key={recipes[selected].id}
           recipe={recipes[selected]}
           data={data}
           index={selected}
