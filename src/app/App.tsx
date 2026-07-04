@@ -81,7 +81,19 @@ export function App() {
       </div>
 
       {error && <div className="status">error: {error}</div>}
-      {!error && !data && <div className="status">extracting…</div>}
+      {!error && !data && (
+        <div className="gallery">
+          <div className="skeleton-note">
+            composing posters from {repos.find((r) => r.path === repoPath)?.name ?? 'repository'}
+            <span className="ellipsis" />
+          </div>
+          {Array.from({ length: 10 }, (_, i) => (
+            <div key={i} className="thumb skeleton">
+              <div className="skeleton-card" />
+            </div>
+          ))}
+        </div>
+      )}
 
       {data && selected === null && (
         <div className="gallery">

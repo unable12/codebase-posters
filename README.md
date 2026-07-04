@@ -39,6 +39,11 @@ A Vite dev-server middleware (`server/`) shells out to git and produces a normal
 
 Extraction is cached in `data-cache/` keyed by HEAD SHA.
 
+## Current recipes
+
+Chrono-Grid Confrontation · Commit Spiral · Heartbeat · Ridgelines · Sunflower ·
+Treemap Fresco · One Poster Per Day · Constellations · Rain · Indentation Skyline
+
 ## Adding a recipe
 
 Drop one file in `src/recipes/` exporting a `CanvasRecipe` (see `src/core/types.ts`).

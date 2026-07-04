@@ -285,24 +285,28 @@ export async function extractRepo(repoPath: string): Promise<RepoDataset> {
     .filter((f) => f.bytes > 0 && f.bytes < 200000 && TEXT_EXTS.has(f.ext))
     .sort((a, b) => b.churn - a.churn)
     .slice(0, CONTENT_SAMPLE_FILES);
-  const contentSamples: ContentSample[] = [];
-  for (const f of candidates) {
-    try {
-      const text = await readFileAtHead(repoPath, f.path);
-      const lines = text.split('\n').slice(0, CONTENT_SAMPLE_LINES).map((raw) => {
-        const indent = raw.match(/^[\t ]*/)?.[0].replace(/\t/g, '  ').length ?? 0;
-        return { text: raw.slice(0, 200), length: raw.length, indent };
-      });
-      contentSamples.push({
-        path: f.path,
-        ext: f.ext,
-        lines,
-        maxLineLength: Math.max(...lines.map((l) => l.length), 1),
-      });
-    } catch {
-      // binary or unreadable — skip
-    }
-  }
+  // read all sample files concurrently — sequential git shows dominated cold extraction time
+  const contentSamples: ContentSample[] = (
+    await Promise.all(
+      candidates.map(async (f): Promise<ContentSample | null> => {
+        try {
+          const text = await readFileAtHead(repoPath, f.path);
+          const lines = text.split('\n').slice(0, CONTENT_SAMPLE_LINES).map((raw) => {
+            const indent = raw.match(/^[\t ]*/)?.[0].replace(/\t/g, '  ').length ?? 0;
+            return { text: raw.slice(0, 200), length: raw.length, indent };
+          });
+          return {
+            path: f.path,
+            ext: f.ext,
+            lines,
+            maxLineLength: Math.max(...lines.map((l) => l.length), 1),
+          };
+        } catch {
+          return null; // binary or unreadable — skip
+        }
+      }),
+    )
+  ).filter((s): s is ContentSample => s !== null);
 
   const name = basename(repoPath);
   return {
