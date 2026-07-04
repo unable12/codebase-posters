@@ -22,14 +22,12 @@ function useDebounced<T>(value: T, ms: number): T {
 interface Props {
   recipe: Recipe;
   data: RepoDataset;
-  index: number;
-  count: number;
   onBack: () => void;
   /** dir: -1 previous, +1 next */
   onNavigate: (dir: number) => void;
 }
 
-export function Detail({ recipe, data, index, count, onBack, onNavigate }: Props) {
+export function Detail({ recipe, data, onBack, onNavigate }: Props) {
   const [params, setParams] = useState<AnyParams>(() => defaultParams(recipe.params));
   const [seed, setSeed] = useState(1);
   const [t, setT] = useState(1);
@@ -88,7 +86,8 @@ export function Detail({ recipe, data, index, count, onBack, onNavigate }: Props
       <button className="nav-arrow" onClick={() => onNavigate(-1)} title="previous (←)">
         ‹
       </button>
-      <div className="canvas-wrap">
+
+      <div className="stage">
         <RecipeCanvas
           recipe={recipe}
           data={data}
@@ -97,22 +96,14 @@ export function Detail({ recipe, data, index, count, onBack, onNavigate }: Props
           t={t}
           pixelWidth={pixelWidth}
         />
-      </div>
-      <button className="nav-arrow" onClick={() => onNavigate(1)} title="next (→)">
-        ›
-      </button>
-
-      <div className="panel">
-        <div className="row space-between">
-          <button className="back" onClick={onBack}>← gallery</button>
-          <span className="counter">{index + 1} / {count}</span>
-        </div>
-
-        <h2>{recipe.name}</h2>
-        <p className="desc">{recipe.description}</p>
-
-        <div className="scrubber">
-          <button onClick={() => setPlaying((p) => !p)}>{playing ? '⏸' : '▶'}</button>
+        <div className="player">
+          <button
+            className="play"
+            onClick={() => setPlaying((p) => !p)}
+            title="play/pause (space)"
+          >
+            {playing ? '⏸' : '▶'}
+          </button>
           <input
             type="range"
             min={0}
@@ -124,69 +115,82 @@ export function Detail({ recipe, data, index, count, onBack, onNavigate }: Props
               setT(parseFloat(e.target.value));
             }}
           />
-          <span className="counter">{t.toFixed(2)}</span>
+          <span className="time">{t.toFixed(2)}</span>
         </div>
+      </div>
 
-        <div className="actions">
-          <button disabled={!!busy} onClick={saveImage}>
-            {busy === 'image' ? 'saving…' : 'Save image'}
-          </button>
-          <button disabled={!!busy} onClick={saveAnimation}>
-            {busy === 'animation' ? 'saving…' : 'Save animation'}
-          </button>
-          <button className={editing ? 'active' : ''} onClick={() => setEditing((e) => !e)}>
-            {editing ? 'Done' : 'Edit'}
-          </button>
-        </div>
+      <button className="nav-arrow" onClick={() => onNavigate(1)} title="next (→)">
+        ›
+      </button>
 
-        <div className={`drawer ${editing ? '' : 'open'}`}>
-          <div className="drawer-inner">
-            <dl className="meaning">
-              {recipe.meaning.map((m) => (
-                <div key={m.label}>
-                  <dt>{m.label}</dt>
-                  <dd>{m.text}</dd>
-                </div>
-              ))}
-            </dl>
+      <div className="panel">
+        <h2>{recipe.name}</h2>
+        <p className="desc">{recipe.description}</p>
+
+        <div className="placard-body">
+          <div className={`drawer ${editing ? '' : 'open'}`}>
+            <div className="drawer-inner">
+              <dl className="meaning">
+                {recipe.meaning.map((m) => (
+                  <div key={m.label}>
+                    <dt>{m.label}</dt>
+                    <dd>{m.text}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
           </div>
-        </div>
 
-        <div className={`drawer ${editing ? 'open' : ''}`}>
-          <div className="drawer-inner controls">
-            <ControlPanel schema={recipe.params} values={params} onChange={setParams} />
+          <div className={`drawer ${editing ? 'open' : ''}`}>
+            <div className="drawer-inner controls">
+              <ControlPanel schema={recipe.params} values={params} onChange={setParams} />
 
-            <label>
-              <span className="param-head">
-                <span>Seed</span>
-                <span className="param-value">{seed}</span>
-              </span>
-              <span className="row">
+              <label>
+                <span className="param-head">
+                  <span>Seed</span>
+                  <span className="param-value">{seed}</span>
+                </span>
+                <span className="row">
+                  <input
+                    type="number"
+                    value={seed}
+                    onChange={(e) => setSeed(parseInt(e.target.value || '0', 10))}
+                  />
+                  <button onClick={() => setSeed(Math.floor(Math.random() * 99999))}>🎲</button>
+                </span>
+              </label>
+
+              <label>
+                Animation duration (s)
                 <input
                   type="number"
-                  value={seed}
-                  onChange={(e) => setSeed(parseInt(e.target.value || '0', 10))}
+                  value={duration}
+                  min={1}
+                  max={60}
+                  onChange={(e) => setDuration(parseFloat(e.target.value || '6'))}
                 />
-                <button onClick={() => setSeed(Math.floor(Math.random() * 99999))}>🎲</button>
-              </span>
-            </label>
+              </label>
 
-            <label>
-              Animation duration (s)
-              <input
-                type="number"
-                value={duration}
-                min={1}
-                max={60}
-                onChange={(e) => setDuration(parseFloat(e.target.value || '6'))}
-              />
-            </label>
-
-            <p className="desc">
-              saved animation → video:{' '}
-              <code>ffmpeg -framerate 30 -i frame_%04d.png -c:v libx264 -pix_fmt yuv420p out.mp4</code>
-            </p>
+              <p className="desc">
+                saved animation → video:{' '}
+                <code>ffmpeg -framerate 30 -i frame_%04d.png -c:v libx264 -pix_fmt yuv420p out.mp4</code>
+              </p>
+            </div>
           </div>
+        </div>
+
+        <div className="placard-footer">
+          <div className="actions">
+            <button disabled={!!busy} onClick={saveImage}>
+              {busy === 'image' ? 'saving…' : 'Save image'}
+            </button>
+            <button disabled={!!busy} onClick={saveAnimation}>
+              {busy === 'animation' ? 'saving…' : 'Save animation'}
+            </button>
+          </div>
+          <button className="edit-link" onClick={() => setEditing((e) => !e)}>
+            {editing ? '✓ done' : '✎ edit parameters'}
+          </button>
         </div>
       </div>
     </div>

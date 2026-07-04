@@ -25,30 +25,59 @@ export function App() {
 
   useEffect(() => {
     if (!repoPath) return;
+    // stale guard: a slow extraction must not overwrite a newer selection
+    let stale = false;
     setData(null);
     setError(null);
     fetchDataset(repoPath)
-      .then(setData)
-      .catch((e) => setError(String(e)));
+      .then((d) => {
+        if (!stale) setData(d);
+      })
+      .catch((e) => {
+        if (!stale) setError(String(e));
+      });
+    return () => {
+      stale = true;
+    };
   }, [repoPath]);
 
   return (
     <div className="app">
       <div className="topbar">
-        <h1>CODEBASE POSTERS</h1>
-        <select value={repoPath} onChange={(e) => setRepoPath(e.target.value)}>
-          {repos.map((r) => (
-            <option key={r.path} value={r.path}>
-              {r.name}
-            </option>
-          ))}
-        </select>
-        {data && (
-          <span style={{ fontSize: 12, color: '#888' }}>
-            {data.meta.commitCount} commits · {data.events.length} events ·{' '}
-            {Math.round(data.meta.durationDays)} days
-          </span>
-        )}
+        <div className="topbar-side">
+          {selected !== null && (
+            <button className="back-link" onClick={() => setSelected(null)}>
+              ← gallery
+            </button>
+          )}
+        </div>
+        <div className="topbar-center">
+          <h1>CODEBASE POSTERS</h1>
+          <select value={repoPath} onChange={(e) => setRepoPath(e.target.value)}>
+            {repos.map((r) => (
+              <option key={r.path} value={r.path}>
+                {r.name}
+              </option>
+            ))}
+          </select>
+          {data && (
+            <span className="stats">
+              {data.meta.commitCount} commits · {data.events.length} events ·{' '}
+              {Math.round(data.meta.durationDays)} days
+            </span>
+          )}
+        </div>
+        <div className="topbar-side dots">
+          {selected !== null &&
+            recipes.map((r, i) => (
+              <button
+                key={r.id}
+                className={`dot ${i === selected ? 'on' : ''}`}
+                title={r.name}
+                onClick={() => setSelected(i)}
+              />
+            ))}
+        </div>
       </div>
 
       {error && <div className="status">error: {error}</div>}
@@ -80,8 +109,6 @@ export function App() {
           key={recipes[selected].id}
           recipe={recipes[selected]}
           data={data}
-          index={selected}
-          count={recipes.length}
           onBack={() => setSelected(null)}
           onNavigate={(dir) => setSelected((selected + dir + recipes.length) % recipes.length)}
         />
