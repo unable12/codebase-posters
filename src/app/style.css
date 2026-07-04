@@ -76,10 +76,13 @@ body {
   display: flex;
   gap: 20px;
   padding: 24px 32px;
-  align-items: stretch;
+  align-items: center;
   flex: 1;
   min-height: 0;
   overflow: hidden;
+  /* shared by the poster and the placard so their edges align */
+  --poster-h: calc(100vh - 200px);
+  --player-h: 43px; /* player row + gap, used to offset the placard */
 }
 
 /* center stage: poster + its player */
@@ -92,7 +95,6 @@ body {
   gap: 12px;
   min-width: 0;
   min-height: 0;
-  --poster-h: calc(100vh - 200px);
 }
 .stage canvas {
   width: auto;
@@ -138,16 +140,20 @@ body {
 /* right placard */
 
 .panel {
-  width: 320px;
+  width: 400px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding-left: 20px;
+  padding-left: 24px;
   border-left: 1px solid #2c2c2c;
+  /* match the poster's optical bounds: same height, shifted up by the
+     player row so top edge = image top and bottom edge = image bottom */
+  height: var(--poster-h);
+  margin-bottom: var(--player-h);
 }
-.panel h2 { font-size: 20px; letter-spacing: 0.01em; font-weight: 600; }
-.panel .desc { font-size: 12px; color: #999; line-height: 1.55; }
+.panel h2 { font-size: 22px; letter-spacing: 0.01em; font-weight: 600; }
+.panel .desc { font-size: 13px; color: #999; line-height: 1.6; }
 .panel .row { display: flex; gap: 8px; align-items: center; }
 .panel button {
   background: #2c2c2c; color: inherit; border: 1px solid #555; padding: 8px 12px;
@@ -251,6 +257,6 @@ input[type='range']::-moz-range-thumb {
 .drawer.open { grid-template-rows: 1fr; opacity: 1; }
 .drawer-inner { overflow: hidden; display: flex; flex-direction: column; gap: 14px; }
 
-.meaning { display: flex; flex-direction: column; gap: 12px; }
-.meaning dt { font-size: 12px; font-weight: 600; color: #ddd; }
-.meaning dd { font-size: 12px; color: #999; line-height: 1.55; margin: 2px 0 0; }
+.meaning { display: flex; flex-direction: column; gap: 14px; }
+.meaning dt { font-size: 13px; font-weight: 600; color: #ddd; }
+.meaning dd { font-size: 13px; color: #999; line-height: 1.6; margin: 3px 0 0; }
