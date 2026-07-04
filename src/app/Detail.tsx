@@ -95,6 +95,7 @@ export function Detail({ recipe, data, onBack, onNavigate }: Props) {
           seed={renderSeed}
           t={t}
           pixelWidth={pixelWidth}
+          draft={playing}
         />
         <div className="player">
           <button

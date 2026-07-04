@@ -35,6 +35,19 @@ export function rgba(hex: string, alpha: number): string {
   return `rgba(${r},${g},${b},${alpha})`;
 }
 
+/**
+ * Smoothstep envelope for animated appearance: 0 before appearAt, eases to 1
+ * over `dur` of the timeline. Multiply alpha/size by it so elements grow in
+ * softly instead of popping. Always 1 at t=1 so the final poster is identical.
+ */
+export function reveal(t: number, appearAt: number, dur = 0.05): number {
+  if (t >= 1) return 1;
+  const u = (t - appearAt) / dur;
+  if (u <= 0) return 0;
+  if (u >= 1) return 1;
+  return u * u * (3 - 2 * u);
+}
+
 /** Fill the poster with paper color. */
 export function paper(ctx: CanvasRenderingContext2D, frame: Frame, color: string): void {
   ctx.fillStyle = color;

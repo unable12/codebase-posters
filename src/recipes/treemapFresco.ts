@@ -1,6 +1,6 @@
 import type { CanvasRecipe } from '../core/types';
 import type { FileStat, RepoDataset } from '../core/schema';
-import { dataTexture, grain, hexToRgb, palette, PALETTE_NAMES, paper, rgba, typographyFooter } from '../core/draw';
+import { dataTexture, grain, hexToRgb, palette, PALETTE_NAMES, paper, reveal, rgba, typographyFooter } from '../core/draw';
 
 // Painted treemap: each file a textured color field. Color mixes between the
 // two palette colors by file age (recency), saturation-like weight by churn.
@@ -103,8 +103,9 @@ const recipe: CanvasRecipe<
     for (const tile of tiles) {
       // fade in by first touch; untouched files treated as present from start
       const appear = tile.file.touches > 0 ? tile.file.firstT01 : 0;
-      if (appear > t) continue;
-      const fade = Math.min(1, (t - appear) * 8 + 0.15);
+      const fade = reveal(t, appear, 0.08);
+      if (fade <= 0) continue;
+      const trng = frame.rngFor(`tile:${tile.file.path}`);
 
       const recency = tile.file.lastT01; // 0 old .. 1 fresh
       const mix = recency;
@@ -125,20 +126,20 @@ const recipe: CanvasRecipe<
         const j = params.roughness;
         ctx.fillStyle = `rgba(${r},${g},${b},${alphaBase * 0.32})`;
         ctx.beginPath();
-        ctx.moveTo(x + rng.gauss() * j, y + rng.gauss() * j);
-        ctx.lineTo(x + w + rng.gauss() * j, y + rng.gauss() * j);
-        ctx.lineTo(x + w + rng.gauss() * j, y + h + rng.gauss() * j);
-        ctx.lineTo(x + rng.gauss() * j, y + h + rng.gauss() * j);
+        ctx.moveTo(x + trng.gauss() * j, y + trng.gauss() * j);
+        ctx.lineTo(x + w + trng.gauss() * j, y + trng.gauss() * j);
+        ctx.lineTo(x + w + trng.gauss() * j, y + h + trng.gauss() * j);
+        ctx.lineTo(x + trng.gauss() * j, y + h + trng.gauss() * j);
         ctx.closePath();
         ctx.fill();
       }
       // texture speckle inside big tiles
       if (w * h > 6000) {
-        const n = Math.floor((w * h) / 900);
+        const n = Math.floor(((w * h) / 900) * frame.quality);
         ctx.fillStyle = `rgba(${r},${g},${b},${0.25 * fade})`;
         for (let i = 0; i < n; i++) {
-          const px = x + rng.next() * w;
-          const py = y + rng.next() * h;
+          const px = x + trng.next() * w;
+          const py = y + trng.next() * h;
           if (noise(px * 0.01, py * 0.01) > 0.1) ctx.fillRect(px, py, 1.6, 1.6);
         }
       }
@@ -150,7 +151,7 @@ const recipe: CanvasRecipe<
       }
     }
 
-    grain(ctx, frame, rng, 4000);
+    grain(ctx, frame, frame.rngFor('grain'), 4000 * frame.quality);
     typographyFooter(ctx, frame, pal.ink, 7);
   },
 };

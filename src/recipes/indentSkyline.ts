@@ -1,5 +1,5 @@
 import type { CanvasRecipe } from '../core/types';
-import { dataTexture, grain, palette, PALETTE_NAMES, paper, rgba, typographyFooter } from '../core/draw';
+import { dataTexture, grain, palette, PALETTE_NAMES, paper, reveal, rgba, typographyFooter } from '../core/draw';
 
 // The code itself as textile: every sampled line becomes a thin horizontal
 // bar — x offset by indentation, width by line length. Files stack top to
@@ -53,20 +53,22 @@ const recipe: CanvasRecipe<{
     for (let i = 0; i < shown; i++) {
       // sample rows evenly across the whole set so t reveals top→bottom of the poster
       const r = rows[Math.floor((i / visible) * rows.length)];
+      const rrng = frame.rngFor(`row:${i}`);
+      const rv = reveal(t, i / visible, 0.03);
       const y = margin + i * rowH;
       const fromLeft = r.fileIdx % 2 === 0; // alternate files weave from opposite edges
       const indent = Math.min(r.indent * params.indentScale, innerW * 0.4);
-      const w = Math.max(2, Math.min(innerW - indent, (r.length / 100) * innerW * 0.6) * (0.7 + rng.next() * 0.3));
+      const w = Math.max(2, Math.min(innerW - indent, (r.length / 100) * innerW * 0.6) * (0.7 + rrng.next() * 0.3));
       const x = fromLeft
-        ? margin + indent + rng.gauss() * params.jitter * 2
-        : frame.width - margin - indent - w + rng.gauss() * params.jitter * 2;
+        ? margin + indent + rrng.gauss() * params.jitter * 2
+        : frame.width - margin - indent - w + rrng.gauss() * params.jitter * 2;
       const color = fromLeft ? pal.a : pal.b;
-      const alpha = 0.28 + (r.length > 80 ? 0.2 : 0) + rng.next() * 0.12;
+      const alpha = (0.28 + (r.length > 80 ? 0.2 : 0) + rrng.next() * 0.12) * (0.3 + 0.7 * rv);
       ctx.fillStyle = rgba(color, Math.min(0.6, alpha));
-      ctx.fillRect(x, y + rng.gauss() * params.jitter, w, rowH * 0.72);
+      ctx.fillRect(x, y + rrng.gauss() * params.jitter, w * (0.5 + 0.5 * rv), rowH * 0.72);
     }
 
-    grain(ctx, frame, rng, 5000);
+    grain(ctx, frame, frame.rngFor('grain'), 5000 * frame.quality);
     typographyFooter(ctx, frame, pal.ink, 14);
   },
 };

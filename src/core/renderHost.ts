@@ -32,6 +32,7 @@ export function renderFrame(
   params: AnyParams,
   seed: number,
   t: number,
+  opts: { quality?: number } = {},
 ): void {
   const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
   const scale = canvas.width / DESIGN_WIDTH;
@@ -42,9 +43,11 @@ export function renderFrame(
     width: DESIGN_WIDTH,
     height: DESIGN_HEIGHT,
     rng: makeRng(hashString(`${recipe.id}|${seed}`)),
+    rngFor: (key: string) => makeRng(hashString(`${recipe.id}|${seed}|${key}`)),
     noise: makeNoise(hashString(`${recipe.id}|noise|${seed}`)),
     data,
     t,
+    quality: opts.quality ?? 1,
   };
   recipe.render(ctx, frame, params, getPrepared(recipe, data, params, seed));
   ctx.restore();

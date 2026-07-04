@@ -31,10 +31,18 @@ export interface Frame {
   width: number;
   height: number;
   rng: Rng;
+  /**
+   * Per-element deterministic stream. Key strokes by stable ids
+   * (e.g. `${sha}:${path}:${i}`) so already-drawn elements stay
+   * pixel-identical between animation frames as new ones appear.
+   */
+  rngFor: (key: string) => Rng;
   noise: (x: number, y: number, z?: number) => number;
   data: RepoDataset;
   /** Animation progress 0..1; t=1 is the finished poster. */
   t: number;
+  /** Render quality 0..1; recipes scale stroke/dot counts by it. 1 = final, ~0.4 = playback draft. */
+  quality: number;
 }
 
 export type RecipeFamily = 'flow' | 'structure' | 'timeline' | 'texture' | 'particles';

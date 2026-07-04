@@ -1,5 +1,5 @@
 import type { CanvasRecipe, Frame } from '../core/types';
-import { dataTexture, grain, palette, PALETTE_NAMES, paper, rgba, sprayStroke, typographyFooter } from '../core/draw';
+import { dataTexture, grain, palette, PALETTE_NAMES, paper, reveal, rgba, sprayStroke, typographyFooter } from '../core/draw';
 import type { RepoEvent } from '../core/schema';
 
 // Repo lifetime on a chrono-grid, additions vs deletions as two forces.
@@ -96,20 +96,26 @@ const recipe: CanvasRecipe<{
       ctx.restore();
     }
 
-    // Strokes for events with t01 <= t (this is the animation).
+    // Strokes for revealed events (soft grow-in; per-event rng keeps
+    // already-drawn strokes pixel-stable between animation frames).
     for (const e of fileEvents) {
-      if (e[axis] > t) continue;
+      const rv = reveal(t, e[axis]);
+      if (rv <= 0) continue;
       const origin = gridPos(e[axis], frame, margin);
       const additionSide = e.additions >= e.deletions;
       const color = additionSide ? pal.a : pal.b;
       const dir = additionSide ? -1 : 1; // additions flow left, deletions right
       const intensity = 0.35 + drama(e.t01) * 0.65;
-      const nStrokes = Math.max(1, Math.round(params.strokesPerEvent * (0.4 + e.magnitude) * intensity));
-      const len = params.strokeLength * (0.35 + e.magnitude * 0.9);
+      const nStrokes = Math.max(
+        1,
+        Math.round(params.strokesPerEvent * (0.4 + e.magnitude) * intensity * frame.quality),
+      );
+      const len = params.strokeLength * (0.35 + e.magnitude * 0.9) * (0.4 + 0.6 * rv);
 
       for (let s = 0; s < nStrokes; s++) {
-        let x = origin.x + rng.gauss() * 26;
-        let y = origin.y + rng.gauss() * 26;
+        const srng = frame.rngFor(`${e.sha}:${e.path}:${s}`);
+        let x = origin.x + srng.gauss() * 26;
+        let y = origin.y + srng.gauss() * 26;
         const pts = [{ x, y }];
         const steps = 22;
         for (let k = 0; k < steps; k++) {
@@ -131,28 +137,39 @@ const recipe: CanvasRecipe<{
           y += (vy / vlen) * (len / steps);
           pts.push({ x, y });
         }
-        sprayStroke(ctx, pts, color, rng, {
+        sprayStroke(ctx, pts, color, srng, {
           width: 5 + e.magnitude * 8,
-          density: 1.6,
-          alpha: 0.05 + e.magnitude * 0.04,
+          density: 1.6 * frame.quality,
+          alpha: (0.05 + e.magnitude * 0.04) * rv,
         });
       }
     }
 
-    // Goal markers: minute-style labels (date) at gravity wells
+    // Goal markers: dots for all gravity wells, date labels only for the
+    // biggest few so dense repos don't drown in text
+    const labeled = new Set(
+      goals
+        .slice()
+        .sort((a, b) => b.e.magnitude - a.e.magnitude)
+        .slice(0, 12)
+        .map((g) => g.e.sha),
+    );
     ctx.save();
     ctx.font = '600 20px ui-monospace, Menlo, monospace';
     for (const g of goals) {
-      if (g.e[axis] > t) continue;
+      const rv = reveal(t, g.e[axis]);
+      if (rv <= 0) continue;
+      ctx.globalAlpha = rv;
       ctx.fillStyle = pal.ink;
       ctx.beginPath();
-      ctx.arc(g.p.x, g.p.y, 6, 0, Math.PI * 2);
+      ctx.arc(g.p.x, g.p.y, (labeled.has(g.e.sha) ? 6 : 3.5) * rv, 0, Math.PI * 2);
       ctx.fill();
-      ctx.fillText(g.e.timestamp.slice(5, 10), g.p.x + 14, g.p.y + 6);
+      if (labeled.has(g.e.sha)) ctx.fillText(g.e.timestamp.slice(5, 10), g.p.x + 14, g.p.y + 6);
+      ctx.globalAlpha = 1;
     }
     ctx.restore();
 
-    grain(ctx, frame, rng);
+    grain(ctx, frame, frame.rngFor('grain'), 3000 * frame.quality);
     typographyFooter(ctx, frame, pal.ink);
   },
 };

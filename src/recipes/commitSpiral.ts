@@ -1,5 +1,5 @@
 import type { CanvasRecipe } from '../core/types';
-import { dataTexture, grain, palette, PALETTE_NAMES, paper, rgba, sprayStroke, typographyFooter } from '../core/draw';
+import { dataTexture, grain, palette, PALETTE_NAMES, paper, reveal, rgba, sprayStroke, typographyFooter } from '../core/draw';
 
 // Time as an inward spiral. Events are marks along the curve, sized by churn;
 // addition-dominant events spray outward (color A), deletion-dominant inward (color B).
@@ -69,12 +69,13 @@ const recipe: CanvasRecipe<{
     for (const e of data.events) {
       if (e.kind !== 'file-change') continue;
       const u = e[axis];
-      if (u > t) continue;
+      const rv = reveal(t, u);
+      if (rv <= 0) continue;
       const p = pos(u);
       const outward = e.additions >= e.deletions;
       const color = outward ? pal.a : pal.b;
       const dir = outward ? 1 : -1;
-      const len = params.sprayLength * (0.25 + e.magnitude);
+      const len = params.sprayLength * (0.25 + e.magnitude) * (0.4 + 0.6 * rv);
       const nx = Math.cos(p.angle) * dir;
       const ny = Math.sin(p.angle) * dir;
       const pts = [];
@@ -87,28 +88,35 @@ const recipe: CanvasRecipe<{
           y: p.y + ny * len * v + Math.sin(p.angle + Math.PI / 2) * bend,
         });
       }
-      sprayStroke(ctx, pts, color, rng, {
+      sprayStroke(ctx, pts, color, frame.rngFor(`${e.sha}:${e.path}`), {
         width: 3 + e.magnitude * 7,
-        density: 2.4,
-        alpha: 0.08 + e.magnitude * 0.06,
+        density: 2.4 * frame.quality,
+        alpha: (0.08 + e.magnitude * 0.06) * rv,
       });
     }
 
-    // goals as dots + date labels on the spiral
+    // goals as dots on the spiral; date labels only for the biggest few
+    const goals = data.events.filter((e) => e.isGoal);
+    const labeled = new Set(
+      goals.slice().sort((a, b) => b.magnitude - a.magnitude).slice(0, 12).map((e) => e.sha),
+    );
     ctx.save();
     ctx.font = '600 19px ui-monospace, Menlo, monospace';
-    for (const e of data.events) {
-      if (!e.isGoal || e[axis] > t) continue;
+    for (const e of goals) {
+      const rv = reveal(t, e[axis]);
+      if (rv <= 0) continue;
       const p = pos(e[axis]);
+      ctx.globalAlpha = rv;
       ctx.fillStyle = pal.ink;
       ctx.beginPath();
-      ctx.arc(p.x, p.y, 5.5, 0, Math.PI * 2);
+      ctx.arc(p.x, p.y, (labeled.has(e.sha) ? 5.5 : 3) * rv, 0, Math.PI * 2);
       ctx.fill();
-      ctx.fillText(e.timestamp.slice(5, 10), p.x + 12, p.y - 8);
+      if (labeled.has(e.sha)) ctx.fillText(e.timestamp.slice(5, 10), p.x + 12, p.y - 8);
+      ctx.globalAlpha = 1;
     }
     ctx.restore();
 
-    grain(ctx, frame, rng);
+    grain(ctx, frame, frame.rngFor('grain'), 3000 * frame.quality);
     typographyFooter(ctx, frame, pal.ink, 2);
   },
 };

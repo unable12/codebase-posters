@@ -38,18 +38,22 @@ interface Props {
   pixelWidth: number;
   /** Queue the render (for gallery thumbs); false renders synchronously (detail view). */
   queued?: boolean;
+  /** Playback mode: render smaller + lower quality for smooth fps. */
+  draft?: boolean;
   onClick?: () => void;
 }
 
-export function RecipeCanvas({ recipe, data, params, seed, t, pixelWidth, queued, onClick }: Props) {
+export function RecipeCanvas({ recipe, data, params, seed, t, pixelWidth, queued, draft, onClick }: Props) {
   const ref = useRef<HTMLCanvasElement>(null);
   const jobRef = useRef<Job | null>(null);
+  const width = draft ? Math.round(pixelWidth / 2) : pixelWidth;
+  const quality = draft ? 0.4 : 1;
 
   useEffect(() => {
     const canvas = ref.current;
     if (!canvas) return;
     if (!queued) {
-      renderFrame(canvas, recipe, data, params, seed, t);
+      renderFrame(canvas, recipe, data, params, seed, t, { quality });
       return;
     }
     // replace any not-yet-run job for this canvas instead of stacking stale ones
@@ -59,7 +63,7 @@ export function RecipeCanvas({ recipe, data, params, seed, t, pixelWidth, queued
     }
     const job: Job = () => {
       jobRef.current = null;
-      if (ref.current) renderFrame(ref.current, recipe, data, params, seed, t);
+      if (ref.current) renderFrame(ref.current, recipe, data, params, seed, t, { quality });
     };
     jobRef.current = job;
     queue.push(job);
@@ -71,13 +75,13 @@ export function RecipeCanvas({ recipe, data, params, seed, t, pixelWidth, queued
         jobRef.current = null;
       }
     };
-  }, [recipe, data, params, seed, t, pixelWidth, queued]);
+  }, [recipe, data, params, seed, t, pixelWidth, queued, quality]);
 
   return (
     <canvas
       ref={ref}
-      width={pixelWidth}
-      height={(pixelWidth * DESIGN_HEIGHT) / DESIGN_WIDTH}
+      width={width}
+      height={(width * DESIGN_HEIGHT) / DESIGN_WIDTH}
       onClick={onClick}
     />
   );
