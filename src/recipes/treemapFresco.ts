@@ -122,7 +122,8 @@ const recipe: CanvasRecipe<
       const g = Math.round(gb + (ga - gb) * mix);
       const b = Math.round(bb + (ba - bb) * mix);
       const heat = Math.log1p(tile.file.churn) / Math.log1p(maxChurn);
-      const alphaBase = (0.25 + heat * 0.5) * fade;
+      // paint arrives at full strength — the brush lays it down, nothing fades in
+      const alphaBase = 0.25 + heat * 0.5;
 
       const gx = params.gap / 2;
       const x = tile.x + gx;
@@ -130,12 +131,12 @@ const recipe: CanvasRecipe<
       const w = Math.max(2, tile.w - params.gap);
       const h = Math.max(2, tile.h - params.gap);
 
-      // painted fill: coats of paint laid down one after another within the
-      // tile's reveal window — the tile is painted, not stamped
+      // painted fill: each coat is BRUSHED across the tile — a wobbly wet
+      // edge sweeps along the long axis, alternating direction per coat
       for (let layer = 0; layer < 4; layer++) {
-        const coat = Math.max(0, Math.min(1, (fade - layer * 0.22) / 0.22));
+        const coat = Math.max(0, Math.min(1, (fade - layer * 0.22) / 0.3));
         const j = params.roughness;
-        // rng draws must happen every frame regardless, to keep later coats stable
+        // fixed rng draws per layer keep later coats frame-stable
         const corners = [
           trng.gauss() * j, trng.gauss() * j,
           trng.gauss() * j, trng.gauss() * j,
@@ -143,14 +144,51 @@ const recipe: CanvasRecipe<
           trng.gauss() * j, trng.gauss() * j,
         ];
         if (coat <= 0) continue;
-        ctx.fillStyle = `rgba(${r},${g},${b},${alphaBase * 0.32 * coat})`;
+
+        // the tile's rough quad is the wall area this coat may cover
+        ctx.save();
         ctx.beginPath();
         ctx.moveTo(x + corners[0], y + corners[1]);
         ctx.lineTo(x + w + corners[2], y + corners[3]);
         ctx.lineTo(x + w + corners[4], y + h + corners[5]);
         ctx.lineTo(x + corners[6], y + h + corners[7]);
         ctx.closePath();
-        ctx.fill();
+        ctx.clip();
+        ctx.fillStyle = `rgba(${r},${g},${b},${alphaBase * 0.32})`;
+
+        if (coat >= 1) {
+          ctx.fillRect(x - j * 2, y - j * 2, w + j * 4, h + j * 4);
+        } else {
+          const dir = layer % 2 === 0 ? 1 : -1; // brush goes back and forth
+          const horiz = w >= h; // sweep along the long axis
+          const wob = j * 1.2 + 6;
+          const nseed = x * 0.013 + y * 0.007 + layer * 3.71;
+          ctx.beginPath();
+          if (horiz) {
+            const span = w + j * 4 + wob * 2;
+            const fx = dir > 0 ? x - j * 2 + span * coat : x + w + j * 2 - span * coat;
+            const backX = dir > 0 ? x - j * 2 : x + w + j * 2;
+            ctx.moveTo(backX, y - j * 2);
+            for (let s = 0; s <= 8; s++) {
+              const yy = y - j * 2 + ((h + j * 4) * s) / 8;
+              ctx.lineTo(fx + noise(yy * 0.015, nseed) * wob, yy);
+            }
+            ctx.lineTo(backX, y + h + j * 2);
+          } else {
+            const span = h + j * 4 + wob * 2;
+            const fy = dir > 0 ? y - j * 2 + span * coat : y + h + j * 2 - span * coat;
+            const backY = dir > 0 ? y - j * 2 : y + h + j * 2;
+            ctx.moveTo(x - j * 2, backY);
+            for (let s = 0; s <= 8; s++) {
+              const xx = x - j * 2 + ((w + j * 4) * s) / 8;
+              ctx.lineTo(xx, fy + noise(xx * 0.015, nseed) * wob);
+            }
+            ctx.lineTo(x + w + j * 2, backY);
+          }
+          ctx.closePath();
+          ctx.fill();
+        }
+        ctx.restore();
       }
       // texture speckle inside big tiles
       if (w * h > 6000) {
