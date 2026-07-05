@@ -116,8 +116,9 @@ body {
   min-height: 0;
   overflow: hidden;
   /* shared by the poster and the placard so their edges align */
-  --poster-h: calc(100vh - 200px);
-  --player-h: 43px; /* player row + gap, used to offset the placard */
+  --poster-h: calc(100vh - 310px);
+  /* everything hanging under the poster (player + contact sheet), used to offset the placard */
+  --player-h: 155px;
 }
 
 /* center stage: poster + its player */
@@ -171,6 +172,36 @@ body {
 .player .play:hover { background: #2c2c2c; }
 .player input { flex: 1; }
 .player .time { min-width: 34px; text-align: right; color: #888; font-variant-numeric: tabular-nums; }
+
+/* contact sheet: seed variants of the current piece */
+.contact-sheet {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  width: calc(var(--poster-h) * 0.75);
+  max-width: 100%;
+}
+.contact-sheet .variant {
+  background: none;
+  border: 1px solid #333;
+  padding: 0;
+  cursor: pointer;
+  line-height: 0;
+  flex: 1;
+}
+.contact-sheet .variant canvas { width: 100%; height: auto; display: block; }
+.contact-sheet .variant:hover { border-color: #888; }
+.contact-sheet .variant.active { border-color: #e8e5de; }
+.contact-sheet .more-variants {
+  background: none;
+  border: 1px solid #444;
+  color: #999;
+  font: inherit;
+  font-size: 16px;
+  padding: 8px 10px;
+  cursor: pointer;
+}
+.contact-sheet .more-variants:hover { color: #e8e5de; border-color: #888; }
 
 .nav-arrow {
   align-self: center;
@@ -237,6 +268,8 @@ body {
   cursor: pointer;
 }
 .edit-link:hover { color: #e8e5de !important; }
+
+.export-note { font-size: 11px; color: #666; text-align: center; }
 
 /* ---- controls ---- */
 

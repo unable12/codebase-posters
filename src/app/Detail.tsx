@@ -6,7 +6,7 @@ import { playLoop } from '../core/renderHost';
 import { RecipeCanvas } from './RecipeCanvas';
 import { ControlPanel } from './ControlPanel';
 import { exportPNG } from '../export/png';
-import { exportFrames } from '../export/frames';
+import { exportVideo } from '../export/video';
 
 // Sliders update instantly in the UI; the (expensive) poster re-render waits
 // until the value settles so dragging stays fluid.
@@ -35,6 +35,9 @@ export function Detail({ recipe, data, onBack, onNavigate }: Props) {
   const [duration, setDuration] = useState(7);
   const [busy, setBusy] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
+  const [bleed, setBleed] = useState(false);
+  /** contact sheet page: 6 seed variants per page */
+  const [sheetPage, setSheetPage] = useState(0);
 
   const renderParams = useDebounced(params, 150);
   const renderSeed = useDebounced(seed, 150);
@@ -66,7 +69,7 @@ export function Detail({ recipe, data, onBack, onNavigate }: Props) {
   const saveImage = async () => {
     setBusy('image');
     try {
-      await exportPNG(recipe, data, params, seed, t, 2);
+      await exportPNG(recipe, data, params, seed, t, undefined, bleed);
     } finally {
       setBusy(null);
     }
@@ -75,11 +78,13 @@ export function Detail({ recipe, data, onBack, onNavigate }: Props) {
   const saveAnimation = async () => {
     setBusy('animation');
     try {
-      await exportFrames(recipe, data, params, seed, Math.round(duration * 30));
+      await exportVideo(recipe, data, params, seed, duration);
     } finally {
       setBusy(null);
     }
   };
+
+  const sheetSeeds = Array.from({ length: 6 }, (_, i) => sheetPage * 6 + i + 1);
 
   return (
     <div className="detail">
@@ -117,6 +122,35 @@ export function Detail({ recipe, data, onBack, onNavigate }: Props) {
             }}
           />
           <span className="time">{t.toFixed(2)}</span>
+        </div>
+
+        <div className="contact-sheet">
+          {sheetSeeds.map((s) => (
+            <button
+              key={s}
+              className={`variant ${s === seed ? 'active' : ''}`}
+              onClick={() => setSeed(s)}
+              title={`seed ${s}`}
+            >
+              <RecipeCanvas
+                recipe={recipe}
+                data={data}
+                params={renderParams}
+                seed={s}
+                t={1}
+                pixelWidth={150}
+                queued
+                quality={0.3}
+              />
+            </button>
+          ))}
+          <button
+            className="more-variants"
+            onClick={() => setSheetPage((p) => p + 1)}
+            title="more variants"
+          >
+            ↻
+          </button>
         </div>
       </div>
 
@@ -172,23 +206,24 @@ export function Detail({ recipe, data, onBack, onNavigate }: Props) {
                 />
               </label>
 
-              <p className="desc">
-                saved animation → video:{' '}
-                <code>ffmpeg -framerate 30 -i frame_%04d.png -c:v libx264 -pix_fmt yuv420p out.mp4</code>
-              </p>
+              <label className="check-row">
+                <span>3 mm print bleed</span>
+                <input type="checkbox" checked={bleed} onChange={(e) => setBleed(e.target.checked)} />
+              </label>
             </div>
           </div>
         </div>
 
         <div className="placard-footer">
           <div className="actions">
-            <button disabled={!!busy} onClick={saveImage}>
-              {busy === 'image' ? 'saving…' : 'Save image'}
+            <button disabled={!!busy} onClick={saveImage} title="3600×4800 px — 12×16 in at 300 DPI">
+              {busy === 'image' ? 'saving…' : 'Save print'}
             </button>
-            <button disabled={!!busy} onClick={saveAnimation}>
-              {busy === 'animation' ? 'saving…' : 'Save animation'}
+            <button disabled={!!busy} onClick={saveAnimation} title={`${duration}s MP4, encoded in the browser`}>
+              {busy === 'animation' ? 'encoding…' : 'Save video'}
             </button>
           </div>
+          <p className="export-note">print: 12×16 in · 300 DPI &nbsp;·&nbsp; video: {duration}s mp4</p>
           <button className="edit-link" onClick={() => setEditing((e) => !e)}>
             {editing ? '✓ done' : '✎ edit parameters'}
           </button>
