@@ -19,12 +19,10 @@ export interface RawCommit {
 
 const SEP = '';
 
-export async function readLog(repoPath: string): Promise<RawCommit[]> {
-  const { stdout } = await run(
-    'git',
-    ['log', '--numstat', '--no-renames', `--format=${SEP}%H${SEP}%an${SEP}%aI${SEP}%s`],
-    { cwd: repoPath, maxBuffer: 64 * 1024 * 1024 },
-  );
+export async function readLog(repoPath: string, maxCommits?: number): Promise<RawCommit[]> {
+  const args = ['log', '--numstat', '--no-renames', `--format=${SEP}%H${SEP}%an${SEP}%aI${SEP}%s`];
+  if (maxCommits) args.splice(1, 0, `-n${maxCommits}`);
+  const { stdout } = await run('git', args, { cwd: repoPath, maxBuffer: 64 * 1024 * 1024 });
 
   const commits: RawCommit[] = [];
   let current: RawCommit | null = null;

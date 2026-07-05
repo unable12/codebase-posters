@@ -4,4 +4,7 @@ import { extractorPlugin } from './server/extractorPlugin';
 
 export default defineConfig({
   plugins: [react(), extractorPlugin()],
+  build: {
+    outDir: 'dist/app',
+  },
 });

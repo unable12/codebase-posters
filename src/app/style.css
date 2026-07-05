@@ -32,6 +32,7 @@ body {
   cursor: pointer;
 }
 .topbar select:hover { border-bottom-color: #666; }
+.topbar .repo-name { font-size: 14px; color: #e8e5de; }
 .topbar .stats { font-size: 12px; color: #666; }
 
 .back-link {

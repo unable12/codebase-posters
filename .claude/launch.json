@@ -6,6 +6,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
       "port": 5173
+    },
+    {
+      "name": "standalone",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["bin/cli.mjs", "--port", "5318", "--no-open"],
+      "port": 5318
     }
   ]
 }

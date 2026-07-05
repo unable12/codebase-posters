@@ -95,13 +95,17 @@ export function App() {
         </div>
         <div className="topbar-center">
           <h1>CODEBASE POSTERS</h1>
-          <select value={repoPath} onChange={(e) => setRepoPath(e.target.value)}>
-            {repos.map((r) => (
-              <option key={r.path} value={r.path}>
-                {r.name}
-              </option>
-            ))}
-          </select>
+          {repos.length === 1 ? (
+            <span className="repo-name">{repos[0].name}</span>
+          ) : (
+            <select value={repoPath} onChange={(e) => setRepoPath(e.target.value)}>
+              {repos.map((r) => (
+                <option key={r.path} value={r.path}>
+                  {r.name}
+                </option>
+              ))}
+            </select>
+          )}
           {data && (
             <span className="stats">
               {data.meta.commitCount} commits · {data.events.length} events ·{' '}

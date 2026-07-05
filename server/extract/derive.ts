@@ -30,9 +30,9 @@ function hash01(s: string): number {
   return (h >>> 0) / 4294967296;
 }
 
-export async function extractRepo(repoPath: string): Promise<RepoDataset> {
+export async function extractRepo(repoPath: string, commitLimit?: number): Promise<RepoDataset> {
   const [commits, treeEntries, head] = await Promise.all([
-    readLog(repoPath),
+    readLog(repoPath, commitLimit),
     readTree(repoPath),
     headSha(repoPath),
   ]);
