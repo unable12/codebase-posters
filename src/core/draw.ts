@@ -137,7 +137,11 @@ export function sprayStroke(
   ctx.restore();
 }
 
-/** Poster footer: repo name, stat, index box — consistent across recipes. */
+/**
+ * Poster footer: repo name, stat, index box — consistent across recipes.
+ * Fades in during the final moments of the animation: the signature on the
+ * finished piece.
+ */
 export function typographyFooter(
   ctx: CanvasRenderingContext2D,
   frame: Frame,
@@ -145,8 +149,11 @@ export function typographyFooter(
   posterNo = 1,
 ): void {
   const { data } = frame;
+  const signature = reveal(frame.t, 0.94, 0.06);
+  if (signature <= 0) return;
   const y = frame.height - 90;
   ctx.save();
+  ctx.globalAlpha = signature;
   ctx.fillStyle = inkColor;
   ctx.font = '600 22px ui-monospace, Menlo, monospace';
   ctx.fillText(data.meta.name.toUpperCase(), frame.width - 560, y);

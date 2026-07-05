@@ -77,8 +77,10 @@ const recipe: CanvasRecipe<
       // seed size adapts to seed spacing (k) so sparse repos get plump seeds
       // and dense repos stay tight; bytes modulate within that band
       const byteNorm = Math.min(1, Math.sqrt(f.bytes) / 220);
-      const radius =
-        Math.max(3, k * (0.16 + byteNorm * 0.3)) * params.seedScale * (0.3 + 0.7 * rv);
+      // bloom: overshoot past full size then settle — seeds pop open
+      const u = rv - 1;
+      const bloom = rv >= 1 ? 1 : 1 + 2.7 * u * u * u + 1.7 * u * u;
+      const radius = Math.max(3, k * (0.16 + byteNorm * 0.3)) * params.seedScale * bloom;
 
       // layered soft ink circles = one painted seed
       const srng = frame.rngFor(`seed:${f.path}`);

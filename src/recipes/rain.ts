@@ -98,17 +98,20 @@ const recipe: CanvasRecipe<{
       ctx.ellipse(x, y, size * 0.7, size, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      // splash rings once landed
+      // splash rings ripple outward right after the drop lands
       if (e.isGoal && rv >= 1) {
-        ctx.strokeStyle = rgba(color, 0.4);
-        ctx.lineWidth = 1.4;
-        ctx.beginPath();
-        ctx.ellipse(x, yFinal + 3, size * 3.2, size * 1.1, 0, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.strokeStyle = rgba(color, 0.18);
-        ctx.beginPath();
-        ctx.ellipse(x, yFinal + 3, size * 5.4, size * 1.8, 0, 0, Math.PI * 2);
-        ctx.stroke();
+        const sp = t >= 1 ? 1 : reveal(t, e.t01 * 0.96 + 0.05, 0.05);
+        if (sp > 0) {
+          ctx.strokeStyle = rgba(color, 0.4);
+          ctx.lineWidth = 1.4;
+          ctx.beginPath();
+          ctx.ellipse(x, yFinal + 3, size * 3.2 * sp, size * 1.1 * sp, 0, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.strokeStyle = rgba(color, 0.18);
+          ctx.beginPath();
+          ctx.ellipse(x, yFinal + 3, size * 5.4 * sp, size * 1.8 * sp, 0, 0, Math.PI * 2);
+          ctx.stroke();
+        }
       }
     }
 

@@ -1,5 +1,5 @@
 import type { CanvasRecipe } from '../core/types';
-import { dataTexture, grain, palette, PALETTE_NAMES, paper, reveal, rgba, sprayStroke, typographyFooter } from '../core/draw';
+import { dataTexture, grain, palette, PALETTE_NAMES, paper, rgba, sprayStroke, typographyFooter } from '../core/draw';
 
 // Joy-division ridgelines: the repo's lifetime cut into horizontal bands,
 // each band a horizon whose peaks are the churn inside that slice of time.
@@ -23,7 +23,7 @@ const recipe: CanvasRecipe<{
     { label: 'Peaks', text: 'Mountains rise where commits landed — height is churn, so a violent week makes an alp and a quiet one stays a plain.' },
     { label: 'Color', text: 'Each peak takes color A when the work there mostly added code, color B when it mostly deleted.' },
     { label: 'Occlusion', text: 'Nearer ridges hide the ones behind them, the way mountain ranges do — later work stands in front of earlier work.' },
-    { label: 'Animation', text: 'The range rises: ridges lift from flat ground, oldest first.' },
+    { label: 'Animation', text: 'Each ridge draws itself left to right like a pen stroke, oldest first — the range sketched one horizon at a time.' },
   ],
   params: {
     palette: { type: 'select', label: 'Palette', default: 'clay-sea', options: PALETTE_NAMES },
@@ -53,8 +53,10 @@ const recipe: CanvasRecipe<{
       const t0 = b / K;
       const t1 = (b + 1) / K;
       const baseline = topY + b * rowGap;
-      const rv = reveal(t, (b / K) * 0.92, 0.07);
-      if (rv <= 0) continue;
+      // pen progress: each ridge draws itself left -> right, staggered oldest first
+      const start = (b / K) * 0.86;
+      const prog = t >= 1 ? 1 : Math.max(0, Math.min(1, (t - start) / 0.14));
+      if (prog <= 0) continue;
 
       const events = fileEvents.filter((e) => e.t01 >= t0 && e.t01 < t1);
       const profile = new Array(X_SAMPLES + 1).fill(0);
@@ -74,27 +76,28 @@ const recipe: CanvasRecipe<{
       }
       const maxP = Math.max(...profile, 0.4);
 
-      // sample points
+      // sample points at full height — the animation is the drawing, not growth
       const pts = profile.map((p, s) => {
         const u = s / X_SAMPLES;
-        const hills = (p / maxP) * params.height * params.overlap * rv;
-        const texture = (noise(u * 9 + b * 3, b * 1.7) * 0.5 + 0.5) * 14 * rv;
+        const hills = (p / maxP) * params.height * params.overlap;
+        const texture = (noise(u * 9 + b * 3, b * 1.7) * 0.5 + 0.5) * 14;
         return { x: margin + u * innerW, y: baseline - hills - texture };
       });
+      const drawnCount = Math.max(2, Math.ceil(pts.length * prog));
 
-      // occlude everything behind this ridge
+      // occlude everything behind the drawn part of this ridge
       ctx.fillStyle = pal.paper;
       ctx.beginPath();
       ctx.moveTo(margin, baseline + 2);
-      pts.forEach((p) => ctx.lineTo(p.x, p.y));
-      ctx.lineTo(margin + innerW, baseline + 2);
+      for (let s = 0; s < drawnCount; s++) ctx.lineTo(pts[s].x, pts[s].y);
+      ctx.lineTo(pts[drawnCount - 1].x, baseline + 2);
       ctx.closePath();
       ctx.fill();
 
       // ridge line, colored per segment by add/delete dominance
       const seg = 12;
-      for (let s = 0; s + 1 < pts.length; s += seg) {
-        const slice = pts.slice(s, Math.min(s + seg + 1, pts.length));
+      for (let s = 0; s + 1 < drawnCount; s += seg) {
+        const slice = pts.slice(s, Math.min(s + seg + 1, drawnCount));
         const mix = colorMix.slice(s, s + seg + 1).reduce((a, v) => a + v, 0);
         const active = profile.slice(s, s + seg + 1).some((v) => v > 0.02);
         const color = mix >= 0 ? pal.a : pal.b;
@@ -102,14 +105,23 @@ const recipe: CanvasRecipe<{
           sprayStroke(ctx, slice, color, frame.rngFor(`ridge:${b}:${s}`), {
             width: 2.6,
             density: 2.2 * frame.quality,
-            alpha: 0.14 * rv,
+            alpha: 0.14,
           });
         }
-        ctx.strokeStyle = rgba(active ? color : pal.ink, (active ? 0.55 : 0.3) * rv);
+        ctx.strokeStyle = rgba(active ? color : pal.ink, active ? 0.55 : 0.3);
         ctx.lineWidth = active ? 1.6 : 1;
         ctx.beginPath();
         slice.forEach((p, i) => (i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y)));
         ctx.stroke();
+      }
+
+      // the pen's ink dot riding the tip while this ridge is being drawn
+      if (prog < 1) {
+        const tip = pts[drawnCount - 1];
+        ctx.fillStyle = rgba(pal.ink, 0.8);
+        ctx.beginPath();
+        ctx.arc(tip.x, tip.y, 4, 0, Math.PI * 2);
+        ctx.fill();
       }
     }
 

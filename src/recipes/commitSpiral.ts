@@ -75,7 +75,7 @@ const recipe: CanvasRecipe<{
       const outward = e.additions >= e.deletions;
       const color = outward ? pal.a : pal.b;
       const dir = outward ? 1 : -1;
-      const len = params.sprayLength * (0.25 + e.magnitude) * (0.4 + 0.6 * rv);
+      const len = params.sprayLength * (0.25 + e.magnitude);
       const nx = Math.cos(p.angle) * dir;
       const ny = Math.sin(p.angle) * dir;
       const pts = [];
@@ -88,10 +88,11 @@ const recipe: CanvasRecipe<{
           y: p.y + ny * len * v + Math.sin(p.angle + Math.PI / 2) * bend,
         });
       }
-      sprayStroke(ctx, pts, color, frame.rngFor(`${e.sha}:${e.path}`), {
+      // sprays shoot out of the rim: draw the covered prefix of the path
+      sprayStroke(ctx, pts.slice(0, Math.max(2, Math.ceil(pts.length * rv))), color, frame.rngFor(`${e.sha}:${e.path}`), {
         width: 3 + e.magnitude * 7,
         density: 2.4 * frame.quality,
-        alpha: (0.08 + e.magnitude * 0.06) * rv,
+        alpha: (0.08 + e.magnitude * 0.06) * (0.5 + 0.5 * rv),
       });
     }
 

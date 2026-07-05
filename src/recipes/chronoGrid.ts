@@ -110,7 +110,7 @@ const recipe: CanvasRecipe<{
         1,
         Math.round(params.strokesPerEvent * (0.4 + e.magnitude) * intensity * frame.quality),
       );
-      const len = params.strokeLength * (0.35 + e.magnitude * 0.9) * (0.4 + 0.6 * rv);
+      const len = params.strokeLength * (0.35 + e.magnitude * 0.9);
 
       for (let s = 0; s < nStrokes; s++) {
         const srng = frame.rngFor(`${e.sha}:${e.path}:${s}`);
@@ -137,10 +137,11 @@ const recipe: CanvasRecipe<{
           y += (vy / vlen) * (len / steps);
           pts.push({ x, y });
         }
-        sprayStroke(ctx, pts, color, srng, {
+        // the brush travels: draw only the part of the path covered so far
+        sprayStroke(ctx, pts.slice(0, Math.max(2, Math.ceil(pts.length * rv))), color, srng, {
           width: 5 + e.magnitude * 8,
           density: 1.6 * frame.quality,
-          alpha: (0.05 + e.magnitude * 0.04) * rv,
+          alpha: (0.05 + e.magnitude * 0.04) * (0.5 + 0.5 * rv),
         });
       }
     }

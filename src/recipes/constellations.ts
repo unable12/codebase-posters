@@ -156,6 +156,14 @@ const recipe: CanvasRecipe<
         if (rv <= 0) continue;
         const size = (3 + star.e.magnitude * 11) * params.starScale * dim * (0.4 + 0.6 * rv);
         const color = star.e.additions >= star.e.deletions ? pal.a : pal.b;
+        // arrival flash: a brief extra halo as the star twinkles into existence
+        if (rv < 1) {
+          const flash = Math.sin(rv * Math.PI);
+          ctx.fillStyle = rgba(color, 0.22 * flash);
+          ctx.beginPath();
+          ctx.arc(star.x, star.y, size * (2.5 + flash * 2.5), 0, Math.PI * 2);
+          ctx.fill();
+        }
         // layered ink star
         ctx.fillStyle = rgba(color, 0.12 * dim * rv);
         ctx.beginPath();

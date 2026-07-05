@@ -138,7 +138,7 @@ const recipe: CanvasRecipe<{
         const dir = fromA ? -1 : 1;
         const pts = [{ x: sx, y: sy }];
         const steps = 8;
-        const len = h * (0.25 + weight * 0.4) * (0.5 + d.drama) * (0.4 + 0.6 * rv);
+        const len = h * (0.25 + weight * 0.4) * (0.5 + d.drama);
         for (let k = 0; k < steps; k++) {
           const n = noise(sx * 0.012, sy * 0.012, day.index * 0.7);
           sx += n * 9 * (1 + d.drama * 1.5);
@@ -147,10 +147,11 @@ const recipe: CanvasRecipe<{
           sy = Math.max(cy + 2, Math.min(cy + h - 2, sy));
           pts.push({ x: sx, y: sy });
         }
-        sprayStroke(ctx, pts, color, srng, {
+        // storms sweep across the card rather than fading in place
+        sprayStroke(ctx, pts.slice(0, Math.max(2, Math.ceil(pts.length * rv))), color, srng, {
           width: Math.max(1.5, cell * 0.018) + weight * 3,
           density: 1.8 * frame.quality,
-          alpha: (0.05 + weight * 0.05) * rv,
+          alpha: (0.05 + weight * 0.05) * (0.5 + 0.5 * rv),
         });
       }
 

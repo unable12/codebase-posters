@@ -53,7 +53,11 @@ export function renderFrame(
   ctx.restore();
 }
 
-/** Drives a play loop sweeping t over durationMs. Returns a stop function. */
+/**
+ * Drives a play loop sweeping t over durationMs. Returns a stop function.
+ * Playback is eased (gentle ease-in-out) so the performance starts calm and
+ * settles at the end; scrubbing elsewhere stays linear.
+ */
 export function playLoop(
   durationMs: number,
   onFrame: (t: number) => void,
@@ -61,6 +65,7 @@ export function playLoop(
 ): () => void {
   let raf = 0;
   let start = performance.now();
+  const ease = (u: number) => u * u * (3 - 2 * u);
   const tick = (now: number) => {
     let t = (now - start) / durationMs;
     if (t >= 1) {
@@ -72,7 +77,7 @@ export function playLoop(
         return;
       }
     }
-    onFrame(Math.min(1, t));
+    onFrame(ease(Math.min(1, t)));
     raf = requestAnimationFrame(tick);
   };
   raf = requestAnimationFrame(tick);

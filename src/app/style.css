@@ -137,6 +137,19 @@ body {
   max-height: var(--poster-h);
   max-width: 100%;
   border: 1px solid #333;
+  view-transition-name: poster;
+}
+
+/* thumbnail <-> poster morph */
+::view-transition-old(poster),
+::view-transition-new(poster) {
+  animation-duration: 340ms;
+  animation-timing-function: cubic-bezier(0.22, 0.9, 0.3, 1);
+  height: 100%;
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 220ms;
 }
 .player {
   display: flex;

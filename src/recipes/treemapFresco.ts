@@ -12,6 +12,8 @@ interface Tile {
   y: number;
   w: number;
   h: number;
+  /** When this tile gets painted, as a fraction of the timeline (sequence-ranked). */
+  appearAt: number;
 }
 
 function squarify(files: FileStat[], x: number, y: number, w: number, h: number): Tile[] {
@@ -21,7 +23,7 @@ function squarify(files: FileStat[], x: number, y: number, w: number, h: number)
   const walk = (fs: FileStat[], x: number, y: number, w: number, h: number, horiz: boolean) => {
     if (fs.length === 0) return;
     if (fs.length === 1) {
-      tiles.push({ file: fs[0], x, y, w, h });
+      tiles.push({ file: fs[0], x, y, w, h, appearAt: 0 });
       return;
     }
     const tot = fs.reduce((s, f) => s + Math.max(64, f.bytes), 0);
@@ -49,6 +51,15 @@ function squarify(files: FileStat[], x: number, y: number, w: number, h: number)
     true,
   );
   void total;
+  // paint order: creation sequence (ties broken by wall position) spread
+  // evenly across the timeline — young repos paint tile-by-tile instead of
+  // every tile popping at t=0
+  const order = tiles
+    .map((tile, i) => ({ tile, i }))
+    .sort((a, b) => a.tile.file.firstT01 - b.tile.file.firstT01 || a.i - b.i);
+  order.forEach(({ tile }, rank) => {
+    tile.appearAt = order.length > 1 ? (rank / (order.length - 1)) * 0.92 : 0;
+  });
   return tiles;
 }
 
@@ -71,7 +82,7 @@ const recipe: CanvasRecipe<
     { label: 'Color blend', text: 'Recency. Tiles shift toward color A when recently edited, toward color B when untouched for long. You can see at a glance where the live edge of the project is.' },
     { label: 'Opacity / weight', text: 'Churn — how much this file has been rewritten over its life. Bold tiles are battlegrounds; pale ones were written once and left alone.' },
     { label: 'Rough painted edges', text: 'Intentional imperfection — each tile is brushed, not drawn, so the wall reads as a fresco rather than a chart.' },
-    { label: 'Animation', text: 'Tiles appear the moment their file was first created — the codebase assembling itself in order.' },
+    { label: 'Animation', text: 'The wall is painted tile by tile in the order the files were created — each tile built up in coats of paint, its name written last.' },
   ],
   params: {
     palette: { type: 'select', label: 'Palette', default: 'ember-slate', options: PALETTE_NAMES },
@@ -101,9 +112,7 @@ const recipe: CanvasRecipe<
     const maxChurn = Math.max(...tiles.map((tl) => tl.file.churn), 1);
 
     for (const tile of tiles) {
-      // fade in by first touch; untouched files treated as present from start
-      const appear = tile.file.touches > 0 ? tile.file.firstT01 : 0;
-      const fade = reveal(t, appear, 0.08);
+      const fade = reveal(t, tile.appearAt, 0.08);
       if (fade <= 0) continue;
       const trng = frame.rngFor(`tile:${tile.file.path}`);
 
@@ -121,15 +130,25 @@ const recipe: CanvasRecipe<
       const w = Math.max(2, tile.w - params.gap);
       const h = Math.max(2, tile.h - params.gap);
 
-      // painted fill: several overlapping rough quads
+      // painted fill: coats of paint laid down one after another within the
+      // tile's reveal window — the tile is painted, not stamped
       for (let layer = 0; layer < 4; layer++) {
+        const coat = Math.max(0, Math.min(1, (fade - layer * 0.22) / 0.22));
         const j = params.roughness;
-        ctx.fillStyle = `rgba(${r},${g},${b},${alphaBase * 0.32})`;
+        // rng draws must happen every frame regardless, to keep later coats stable
+        const corners = [
+          trng.gauss() * j, trng.gauss() * j,
+          trng.gauss() * j, trng.gauss() * j,
+          trng.gauss() * j, trng.gauss() * j,
+          trng.gauss() * j, trng.gauss() * j,
+        ];
+        if (coat <= 0) continue;
+        ctx.fillStyle = `rgba(${r},${g},${b},${alphaBase * 0.32 * coat})`;
         ctx.beginPath();
-        ctx.moveTo(x + trng.gauss() * j, y + trng.gauss() * j);
-        ctx.lineTo(x + w + trng.gauss() * j, y + trng.gauss() * j);
-        ctx.lineTo(x + w + trng.gauss() * j, y + h + trng.gauss() * j);
-        ctx.lineTo(x + trng.gauss() * j, y + h + trng.gauss() * j);
+        ctx.moveTo(x + corners[0], y + corners[1]);
+        ctx.lineTo(x + w + corners[2], y + corners[3]);
+        ctx.lineTo(x + w + corners[4], y + h + corners[5]);
+        ctx.lineTo(x + corners[6], y + h + corners[7]);
         ctx.closePath();
         ctx.fill();
       }
@@ -143,8 +162,9 @@ const recipe: CanvasRecipe<
           if (noise(px * 0.01, py * 0.01) > 0.1) ctx.fillRect(px, py, 1.6, 1.6);
         }
       }
-      if (params.filenames && w > 90 && h > 26) {
-        ctx.fillStyle = rgba(pal.ink, 0.55 * fade);
+      // the name is written last, once the paint is down
+      if (params.filenames && w > 90 && h > 26 && fade >= 1) {
+        ctx.fillStyle = rgba(pal.ink, 0.55);
         ctx.font = '13px ui-monospace, Menlo, monospace';
         const name = tile.file.path.split('/').pop() ?? '';
         ctx.fillText(name.slice(0, Math.floor(w / 9)), x + 8, y + 20);
