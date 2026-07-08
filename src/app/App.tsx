@@ -71,6 +71,7 @@ export function App() {
     let stale = false;
     setData(null);
     setError(null);
+    setSelected(null); // switching repos always returns to the gallery
     fetchDataset(repoPath)
       .then((d) => {
         if (!stale) setData(d);
@@ -130,12 +131,11 @@ export function App() {
       {!error && !data && (
         <div className="gallery">
           <div className="skeleton-note">
-            composing posters from {repos.find((r) => r.path === repoPath)?.name ?? 'repository'}
-            <span className="ellipsis" />
+            preparing the gallery for {repos.find((r) => r.path === repoPath)?.name ?? 'this repository'}
           </div>
           {Array.from({ length: 10 }, (_, i) => (
             <div key={i} className="thumb skeleton">
-              <div className="skeleton-card" />
+              <div className="skeleton-card" style={{ '--i': i } as React.CSSProperties} />
             </div>
           ))}
         </div>
