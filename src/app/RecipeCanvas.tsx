@@ -65,7 +65,10 @@ export function RecipeCanvas({ recipe, data, params, seed, t, pixelWidth, queued
     }
     const job: Job = () => {
       jobRef.current = null;
-      if (ref.current) renderFrame(ref.current, recipe, data, params, seed, t, { quality });
+      if (ref.current) {
+        renderFrame(ref.current, recipe, data, params, seed, t, { quality });
+        ref.current.dataset.painted = 'true';
+      }
     };
     jobRef.current = job;
     queue.push(job);

@@ -170,6 +170,8 @@ export function App() {
           key={recipes[selected].id}
           recipe={recipes[selected]}
           data={data}
+          index={selected}
+          total={recipes.length}
           onBack={closeDetail}
           onNavigate={(dir) => setSelected((selected + dir + recipes.length) % recipes.length)}
         />

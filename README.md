@@ -1,73 +1,66 @@
-# Codebase Posters
+<p align="center">
+  <img src="https://raw.githubusercontent.com/unable12/codebase-posters/main/docs/posters/react-chrono-grid.png" width="30%" alt="react — chrono-grid confrontation" />
+  <img src="https://raw.githubusercontent.com/unable12/codebase-posters/main/docs/posters/zod-constellations.png" width="30%" alt="zod — constellations" />
+  <img src="https://raw.githubusercontent.com/unable12/codebase-posters/main/docs/posters/vite-heartbeat.png" width="30%" alt="vite — heartbeat" />
+</p>
 
-**Your repository as generative art.** Run one command inside any git repo and
-watch your codebase paint itself into a poster — commit storms, working-day
-calendars, the project's heartbeat, your circadian coding rhythm.
+# codebase posters
 
-```
-npx codebase-posters
-```
+[![npm version](https://img.shields.io/npm/v/codebase-posters?style=flat-square&color=2a4fd7)](https://www.npmjs.com/package/codebase-posters)
+[![npm downloads](https://img.shields.io/npm/dm/codebase-posters?style=flat-square&color=2a4fd7)](https://www.npmjs.com/package/codebase-posters)
 
-Your browser opens a gallery of 10 posters generated from *your* repo's history
-and structure. Click into any piece, watch it paint itself, pick a variant you
-like from the contact sheet, then:
+every repository has a shape.
+this paints it.
 
-- **Save print** — 3600×4800 PNG (12×16 in at 300 DPI, optional 3 mm bleed)
-- **Save video** — the painting animation as an MP4, encoded in your browser
+    npx codebase-posters
 
-## Privacy
+one command, inside any git repo.
+your browser opens a gallery: ten posters, painted live from your commit history.
+storms of additions and deletions. your working days as a calendar. the project's
+heartbeat. the constellations you committed at 2am.
 
-Everything runs locally. The tool:
+pick one. watch it paint itself. hang it on the wall.
 
-- reads your git history (`git log`, `git ls-tree`) and samples up to 40 text
-  files from HEAD to use as texture — all via local git commands
-- serves the gallery on `127.0.0.1` only, with a random port and host-header
-  validation; the API can only see the one repo you launched it in
-- makes **zero network requests**, sends **no telemetry**, and writes
-  **nothing to disk** — the extracted data lives in memory and dies with the process
+## the gallery
 
-## The posters
+| | |
+| --- | --- |
+| <img src="https://raw.githubusercontent.com/unable12/codebase-posters/main/docs/posters/react-chrono-grid.png" width="100%" alt="react chrono-grid" /><br>react. thirteen years of weather. | <img src="https://raw.githubusercontent.com/unable12/codebase-posters/main/docs/posters/express-rain.png" width="100%" alt="express rain" /><br>express. it's been raining since 2009. |
+| <img src="https://raw.githubusercontent.com/unable12/codebase-posters/main/docs/posters/vite-heartbeat.png" width="100%" alt="vite heartbeat" /><br>vite. resting heart rate: not resting. | <img src="https://raw.githubusercontent.com/unable12/codebase-posters/main/docs/posters/zod-constellations.png" width="100%" alt="zod constellations" /><br>zod. one man's night sky. |
+| <img src="https://raw.githubusercontent.com/unable12/codebase-posters/main/docs/posters/tailwind-poster-per-day.png" width="100%" alt="tailwind poster per day" /><br>tailwind. nine years of showing up. | |
 
-Chrono-Grid Confrontation · Commit Spiral · Heartbeat · Ridgelines · Sunflower ·
-Treemap Fresco · One Poster Per Day · Constellations · Rain · Indentation Skyline
+each image is a real open-source repo at a fixed seed — same inputs, same pixels.
 
-Each is a pure function of `(repo data, parameters, seed, time)`: `t = 1` is the
-finished poster, sweeping `t` is the animation. Same inputs, same pixels — your
-poster is reproducible.
+## yours stays yours
 
-Inspired by [GenCup](https://www.gencup.art/) — Zeh Fernandes' World Cup data
-posters ([how it's made](https://zehfernandes.com/posts/how-i-turned-world-cup-data-into-posters)).
+runs entirely on your machine.
+no uploads. no telemetry. no account.
+101 kB, zero dependencies. it reads your git log, paints, and forgets.
 
-## Development
+## save it
 
-```
-npm install
-npm run dev        # dev server with repo picker (scans ~/code_base)
-npm run build      # dist/app (frontend) + dist/server.mjs (standalone server)
-node bin/cli.mjs   # run the npx experience locally
-```
+**print** — 3600×4800 px. that's 12×16 inches at 300 dpi. real poster, real wall.
+**video** — the painting animation as an mp4, encoded in your browser.
 
-### Layout
+every poster is deterministic: same repo, same seed, same pixels.
 
-```
-bin/cli.mjs        npx entry: resolve repo, start server, open browser
-server/            git extraction + standalone production server + Vite dev middleware
-src/core/          schema, recipe contract, seeded rng/noise, render host, draw helpers
-src/recipes/       one file per poster — the plugin surface
-src/app/           React shell: gallery, detail view, contact sheet, controls
-src/export/        print PNG + MP4 (WebCodecs) + PNG-frames fallback
-```
+## read it
 
-### Adding a recipe
+blue strokes are code arriving. green is code leaving.
+the dots with dates are your biggest commits — they bend everything around them.
+each poster explains itself in the gallery.
 
-Drop one file in `src/recipes/` exporting a `CanvasRecipe` (see `src/core/types.ts`).
-It auto-registers in the gallery, with an auto-generated control panel from its
-param schema.
+---
 
-### Publishing
+## hacking on it
 
 ```
-npm run build
-npm pack           # inspect the tarball
-npm publish
+npm install && npm run dev    # gallery with repo picker (scans ~/code_base)
+npm run build                 # dist/app + dist/server.mjs for npx
+node bin/cli.mjs              # run the packaged experience locally
 ```
+
+add a poster: drop a file in `src/recipes/` exporting a `CanvasRecipe` (`src/core/types.ts`). it auto-registers.
+
+inspired by [zeh fernandes' gencup](https://zehfernandes.com/posts/how-i-turned-world-cup-data-into-posters).
+MIT.

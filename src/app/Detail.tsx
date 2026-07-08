@@ -22,12 +22,14 @@ function useDebounced<T>(value: T, ms: number): T {
 interface Props {
   recipe: Recipe;
   data: RepoDataset;
+  index: number;
+  total: number;
   onBack: () => void;
   /** dir: -1 previous, +1 next */
   onNavigate: (dir: number) => void;
 }
 
-export function Detail({ recipe, data, onBack, onNavigate }: Props) {
+export function Detail({ recipe, data, index, total, onBack, onNavigate }: Props) {
   const [params, setParams] = useState<AnyParams>(() => defaultParams(recipe.params));
   const [seed, setSeed] = useState(1);
   const [t, setT] = useState(1);
@@ -36,8 +38,7 @@ export function Detail({ recipe, data, onBack, onNavigate }: Props) {
   const [busy, setBusy] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
   const [bleed, setBleed] = useState(false);
-  /** contact sheet page: 6 seed variants per page */
-  const [sheetPage, setSheetPage] = useState(0);
+  const [labelSwap, setLabelSwap] = useState<'image' | 'animation' | null>(null);
 
   const renderParams = useDebounced(params, 150);
   const renderSeed = useDebounced(seed, 150);
@@ -46,6 +47,13 @@ export function Detail({ recipe, data, onBack, onNavigate }: Props) {
     if (!playing) return;
     return playLoop(duration * 1000, setT);
   }, [playing, duration]);
+
+  useEffect(() => {
+    if (!busy) return;
+    setLabelSwap(busy as 'image' | 'animation');
+    const id = setTimeout(() => setLabelSwap(null), 200);
+    return () => clearTimeout(id);
+  }, [busy]);
 
   // gallery-style keyboard navigation
   useEffect(() => {
@@ -84,8 +92,6 @@ export function Detail({ recipe, data, onBack, onNavigate }: Props) {
     }
   };
 
-  const sheetSeeds = Array.from({ length: 6 }, (_, i) => sheetPage * 6 + i + 1);
-
   return (
     <div className="detail">
       <button className="nav-arrow" onClick={() => onNavigate(-1)} title="previous (←)">
@@ -123,35 +129,6 @@ export function Detail({ recipe, data, onBack, onNavigate }: Props) {
           />
           <span className="time">{t.toFixed(2)}</span>
         </div>
-
-        <div className="contact-sheet">
-          {sheetSeeds.map((s) => (
-            <button
-              key={s}
-              className={`variant ${s === seed ? 'active' : ''}`}
-              onClick={() => setSeed(s)}
-              title={`seed ${s}`}
-            >
-              <RecipeCanvas
-                recipe={recipe}
-                data={data}
-                params={renderParams}
-                seed={s}
-                t={1}
-                pixelWidth={150}
-                queued
-                quality={0.3}
-              />
-            </button>
-          ))}
-          <button
-            className="more-variants"
-            onClick={() => setSheetPage((p) => p + 1)}
-            title="more variants"
-          >
-            ↻
-          </button>
-        </div>
       </div>
 
       <button className="nav-arrow" onClick={() => onNavigate(1)} title="next (→)">
@@ -159,7 +136,20 @@ export function Detail({ recipe, data, onBack, onNavigate }: Props) {
       </button>
 
       <div className="panel">
-        <h2>{recipe.name}</h2>
+        <div className="placard-head">
+          <div className="mobile-nav">
+            <button type="button" onClick={() => onNavigate(-1)} aria-label="previous poster">
+              ‹
+            </button>
+            <span>
+              {index + 1} / {total}
+            </span>
+            <button type="button" onClick={() => onNavigate(1)} aria-label="next poster">
+              ›
+            </button>
+          </div>
+          <h2>{recipe.name}</h2>
+        </div>
         <p className="desc">{recipe.description}</p>
 
         <div className="placard-body">
@@ -216,10 +206,20 @@ export function Detail({ recipe, data, onBack, onNavigate }: Props) {
 
         <div className="placard-footer">
           <div className="actions">
-            <button disabled={!!busy} onClick={saveImage} title="3600×4800 px — 12×16 in at 300 DPI">
+            <button
+              className={labelSwap === 'image' ? 'label-swapping' : ''}
+              disabled={!!busy}
+              onClick={saveImage}
+              title="3600×4800 px — 12×16 in at 300 DPI"
+            >
               {busy === 'image' ? 'saving…' : 'Save print'}
             </button>
-            <button disabled={!!busy} onClick={saveAnimation} title={`${duration}s MP4, encoded in the browser`}>
+            <button
+              className={labelSwap === 'animation' ? 'label-swapping' : ''}
+              disabled={!!busy}
+              onClick={saveAnimation}
+              title={`${duration}s MP4, encoded in the browser`}
+            >
               {busy === 'animation' ? 'encoding…' : 'Save video'}
             </button>
           </div>

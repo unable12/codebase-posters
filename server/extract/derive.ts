@@ -87,7 +87,11 @@ export async function extractRepo(repoPath: string, commitLimit?: number): Promi
   // magnitude: log-scaled churn normalized per kind
   for (const kind of ['commit', 'file-change'] as const) {
     const ofKind = events.filter((e) => e.kind === kind);
-    const max = Math.max(...ofKind.map((e) => Math.log1p(e.additions + e.deletions)), 1e-9);
+    let max = 1e-9;
+    for (const e of ofKind) {
+      const v = Math.log1p(e.additions + e.deletions);
+      if (v > max) max = v;
+    }
     for (const e of ofKind) e.magnitude = Math.log1p(e.additions + e.deletions) / max;
   }
   // goals: top-decile commits by magnitude
@@ -249,7 +253,7 @@ export async function extractRepo(repoPath: string, commitLimit?: number): Promi
   const burst = new Array(BUCKET_COUNT).fill(0);
   for (let i = 0; i < commitEvents.length; i++) {
     const e = commitEvents[i];
-    const bi = Math.min(BUCKET_COUNT - 1, Math.floor(e.t01 * BUCKET_COUNT));
+    const bi = Math.min(BUCKET_COUNT - 1, Math.max(0, Math.floor(e.t01 * BUCKET_COUNT)));
     buckets[bi].churn += e.additions + e.deletions;
     buckets[bi].commits += 1;
     if (i > 0) {

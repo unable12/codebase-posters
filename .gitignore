@@ -3,3 +3,4 @@ dist/
 data-cache/
 .DS_Store
 *.tgz
+tsconfig.tsbuildinfo
