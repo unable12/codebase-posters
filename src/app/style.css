@@ -68,27 +68,29 @@ body {
 .back-link:active { transform: scale(0.97); }
 
 .dot {
-  position: relative;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  border: 1px solid #666;
-  background: none;
+  /* full flex item = hit area; pitch (16+8 gap = 24) keeps boxes disjoint */
+  width: 16px;
+  height: 24px;
   padding: 0;
+  background: none;
+  border: none;
+  position: relative;
   cursor: pointer;
-  transition: transform 140ms var(--ease-out-strong), border-color 150ms ease, background 150ms ease;
+  transition: transform 140ms var(--ease-out-strong);
 }
-/* invisible 44px hit area — visual size unchanged */
-.dot::before {
+.dot::after {
   content: '';
   position: absolute;
   inset: 50%;
-  width: 44px;
-  height: 44px;
+  width: 8px;
+  height: 8px;
   transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1px solid #666;
+  transition: border-color 150ms ease, background 150ms ease;
 }
+.dot.on::after { background: #e8e5de; border-color: #e8e5de; }
 .dot:active { transform: scale(0.97); }
-.dot.on { background: #e8e5de; border-color: #e8e5de; }
 
 .status { padding: 40px; color: #999; }
 
@@ -395,7 +397,7 @@ input[type='range']::-moz-range-thumb {
 @media (hover: hover) and (pointer: fine) {
   .back-link:hover { color: #fff; text-decoration: underline; }
   .topbar select:hover { border-bottom-color: #666; }
-  .dot:hover { border-color: #aaa; }
+  .dot:hover::after { border-color: #aaa; }
   .thumb:hover canvas { border-color: #888; }
   .player .play:hover { background: #2c2c2c; }
   .nav-arrow:hover { color: #e8e5de; }
@@ -414,15 +416,7 @@ input[type='range']::-moz-range-thumb {
 
 @media (max-width: 700px) {
   .topbar-side { flex: 0; }
-  .topbar-side.dots {
-    flex: 0;
-    order: 3;
-    gap: 5px;
-    flex-shrink: 1;
-    min-width: 0;
-  }
   .topbar-center { flex: 1; min-width: 0; gap: 10px; }
-  .dot { width: 6px; height: 6px; }
 
   .gallery {
     padding: 16px;
@@ -435,6 +429,9 @@ input[type='range']::-moz-range-thumb {
 
 @media (max-width: 900px) {
   .app { height: auto; min-height: 100vh; min-height: 100dvh; }
+
+  /* mobile nav in the placard already shows position; dots are untappable at this pitch */
+  .topbar-side.dots { display: none; }
 
   .detail {
     flex-direction: column;
@@ -524,8 +521,11 @@ input[type='range']::-moz-range-thumb {
     transform: none;
   }
 
+  input[type='range']::-webkit-slider-thumb { transition: none; }
+
   .back-link,
   .dot,
+  .dot::after,
   .thumb,
   .player .play,
   .nav-arrow,
