@@ -52,18 +52,23 @@ body {
 .topbar .stats { font-size: 12px; color: #666; white-space: nowrap; }
 
 .back-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   background: none;
   border: none;
   color: #e8e5de;
   font: inherit;
   font-size: 13px;
   cursor: pointer;
-  padding: 6px 0;
+  padding: 0;
+  white-space: nowrap;
   transition: transform 140ms var(--ease-out-strong), color 150ms ease;
 }
 .back-link:active { transform: scale(0.97); }
 
 .dot {
+  position: relative;
   width: 8px;
   height: 8px;
   border-radius: 50%;
@@ -72,6 +77,15 @@ body {
   padding: 0;
   cursor: pointer;
   transition: transform 140ms var(--ease-out-strong), border-color 150ms ease, background 150ms ease;
+}
+/* invisible 44px hit area — visual size unchanged */
+.dot::before {
+  content: '';
+  position: absolute;
+  inset: 50%;
+  width: 44px;
+  height: 44px;
+  transform: translate(-50%, -50%);
 }
 .dot:active { transform: scale(0.97); }
 .dot.on { background: #e8e5de; border-color: #e8e5de; }
@@ -205,6 +219,7 @@ body {
   font-size: 12px;
 }
 .player .play {
+  position: relative;
   background: none;
   border: 1px solid #555;
   color: #e8e5de;
@@ -213,6 +228,14 @@ body {
   padding: 6px 10px;
   cursor: pointer;
   transition: transform 140ms var(--ease-out-strong), border-color 150ms ease, background 150ms ease;
+}
+.player .play::before {
+  content: '';
+  position: absolute;
+  inset: 50%;
+  width: 44px;
+  height: 44px;
+  transform: translate(-50%, -50%);
 }
 .player .play:active { transform: scale(0.97); }
 
@@ -449,6 +472,7 @@ input[type='range']::-moz-range-thumb {
     letter-spacing: 0.04em;
   }
   .mobile-nav button {
+    position: relative;
     background: none;
     border: none;
     color: #aaa;
@@ -458,6 +482,14 @@ input[type='range']::-moz-range-thumb {
     padding: 4px 8px;
     cursor: pointer;
     transition: transform 140ms var(--ease-out-strong), color 150ms ease;
+  }
+  .mobile-nav button::before {
+    content: '';
+    position: absolute;
+    inset: 50%;
+    width: 44px;
+    height: 44px;
+    transform: translate(-50%, -50%);
   }
   .mobile-nav button:active { transform: scale(0.97); }
 }
