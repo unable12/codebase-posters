@@ -4,3 +4,4 @@ data-cache/
 .DS_Store
 *.tgz
 tsconfig.tsbuildinfo
+.claude/settings.local.json
