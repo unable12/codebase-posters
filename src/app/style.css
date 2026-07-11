@@ -1,6 +1,12 @@
 :root {
   --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
+  --dur-press: 140ms;
+  --dur-hover: 150ms;
+  --dur-swap: 200ms;
+  --dur-drawer: 260ms;
+  --dur-reveal: 300ms;
+  --dur-morph: 340ms;
 }
 
 * { box-sizing: border-box; margin: 0; }
@@ -46,7 +52,7 @@ body {
   font: inherit;
   font-size: 14px;
   cursor: pointer;
-  transition: border-color 150ms ease;
+  transition: border-color var(--dur-hover) ease;
 }
 .topbar .repo-name { font-size: 14px; color: #e8e5de; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 40vw; }
 .topbar .stats { font-size: 12px; color: #666; white-space: nowrap; }
@@ -63,7 +69,7 @@ body {
   cursor: pointer;
   padding: 0;
   white-space: nowrap;
-  transition: transform 140ms var(--ease-out-strong), color 150ms ease;
+  transition: transform var(--dur-press) var(--ease-out-strong), color var(--dur-hover) ease;
 }
 .back-link:active { transform: scale(0.97); }
 
@@ -76,7 +82,7 @@ body {
   border: none;
   position: relative;
   cursor: pointer;
-  transition: transform 140ms var(--ease-out-strong);
+  transition: transform var(--dur-press) var(--ease-out-strong);
 }
 .dot::after {
   content: '';
@@ -87,7 +93,7 @@ body {
   transform: translate(-50%, -50%);
   border-radius: 50%;
   border: 1px solid #666;
-  transition: border-color 150ms ease, background 150ms ease;
+  transition: border-color var(--dur-hover) ease, background var(--dur-hover) ease;
 }
 .dot.on::after { background: #e8e5de; border-color: #e8e5de; }
 .dot:active { transform: scale(0.97); }
@@ -111,14 +117,14 @@ body {
   text-align: left;
   color: inherit;
   font: inherit;
-  transition: transform 140ms var(--ease-out-strong);
+  transition: transform var(--dur-press) var(--ease-out-strong);
 }
 .thumb:active { transform: scale(0.99); }
 .thumb canvas {
   width: 100%;
   display: block;
   border: 1px solid #333;
-  transition: border-color 150ms ease, opacity 300ms var(--ease-out-strong), transform 300ms var(--ease-out-strong);
+  transition: border-color var(--dur-hover) ease, opacity var(--dur-reveal) var(--ease-out-strong), transform var(--dur-reveal) var(--ease-out-strong);
   opacity: 0;
   transform: translateY(6px);
 }
@@ -142,6 +148,23 @@ body {
   color: #7a7568;
   font-style: italic;
   padding-bottom: 4px;
+}
+.orient-note {
+  grid-column: 1 / -1;
+  font: inherit;
+  font-size: 13px;
+  font-style: italic;
+  color: #7a7568;
+  background: none;
+  border: none;
+  padding: 0 0 4px;
+  text-align: left;
+  cursor: pointer;
+  opacity: 1;
+  transition: opacity var(--dur-swap) ease;
+}
+.orient-note.leaving {
+  opacity: 0;
 }
 .skeleton-card {
   aspect-ratio: 3 / 4;
@@ -200,11 +223,20 @@ body {
   border: 1px solid #333;
   view-transition-name: poster;
 }
+.stage-canvas {
+  display: flex;
+  justify-content: center;
+  max-width: 100%;
+  transition: opacity 250ms ease;
+}
+.stage-canvas.fading {
+  opacity: 0.02;
+}
 
 /* thumbnail <-> poster morph */
 ::view-transition-old(poster),
 ::view-transition-new(poster) {
-  animation-duration: 340ms;
+  animation-duration: var(--dur-morph);
   animation-timing-function: cubic-bezier(0.22, 0.9, 0.3, 1);
   height: 100%;
 }
@@ -229,7 +261,7 @@ body {
   font-size: 11px;
   padding: 6px 10px;
   cursor: pointer;
-  transition: transform 140ms var(--ease-out-strong), border-color 150ms ease, background 150ms ease;
+  transition: transform var(--dur-press) var(--ease-out-strong), border-color var(--dur-hover) ease, background var(--dur-hover) ease;
 }
 .player .play::before {
   content: '';
@@ -253,7 +285,7 @@ body {
   line-height: 1;
   padding: 24px 10px;
   cursor: pointer;
-  transition: transform 140ms var(--ease-out-strong), color 150ms ease;
+  transition: transform var(--dur-press) var(--ease-out-strong), color var(--dur-hover) ease;
 }
 .nav-arrow:active { transform: scale(0.97); }
 
@@ -285,10 +317,14 @@ body {
   font: inherit;
   font-size: 12px;
   cursor: pointer;
-  transition: transform 140ms var(--ease-out-strong), border-color 150ms ease, background 150ms ease, color 150ms ease, filter 200ms ease, opacity 200ms ease;
+  transition: transform var(--dur-press) var(--ease-out-strong), border-color var(--dur-hover) ease, background var(--dur-hover) ease, color var(--dur-hover) ease, filter var(--dur-swap) ease, opacity var(--dur-swap) ease;
 }
 .panel button:active { transform: scale(0.97); }
 .panel button.label-swapping { filter: blur(2px); opacity: 0.7; }
+.panel button.save-done {
+  color: #e8e5de;
+  border-color: #8a8578;
+}
 
 .placard-body {
   border-top: 1px solid #2c2c2c;
@@ -316,7 +352,7 @@ body {
   padding: 4px 0 !important;
   text-align: center;
   cursor: pointer;
-  transition: transform 140ms var(--ease-out-strong), color 150ms ease !important;
+  transition: transform var(--dur-press) var(--ease-out-strong), color var(--dur-hover) ease !important;
 }
 .edit-link:active { transform: scale(0.97); }
 
@@ -382,7 +418,7 @@ input[type='range']::-moz-range-thumb {
 .drawer {
   display: grid;
   grid-template-rows: 0fr;
-  transition: grid-template-rows 260ms var(--ease-in-out-strong), opacity 260ms var(--ease-in-out-strong);
+  transition: grid-template-rows var(--dur-drawer) var(--ease-in-out-strong), opacity var(--dur-drawer) var(--ease-in-out-strong);
   opacity: 0;
 }
 .drawer.open { grid-template-rows: 1fr; opacity: 1; }
@@ -478,7 +514,7 @@ input[type='range']::-moz-range-thumb {
     line-height: 1;
     padding: 4px 8px;
     cursor: pointer;
-    transition: transform 140ms var(--ease-out-strong), color 150ms ease;
+    transition: transform var(--dur-press) var(--ease-out-strong), color var(--dur-hover) ease;
   }
   .mobile-nav button::before {
     content: '';
@@ -506,7 +542,7 @@ input[type='range']::-moz-range-thumb {
   }
 
   .drawer {
-    transition: opacity 200ms ease;
+    transition: opacity var(--dur-swap) ease;
   }
 
   ::view-transition-group(*),
@@ -516,7 +552,7 @@ input[type='range']::-moz-range-thumb {
   }
 
   .thumb canvas {
-    transition: border-color 150ms ease;
+    transition: border-color var(--dur-hover) ease;
     opacity: 1;
     transform: none;
   }
@@ -532,7 +568,7 @@ input[type='range']::-moz-range-thumb {
   .panel button,
   .edit-link,
   .mobile-nav button {
-    transition: border-color 150ms ease, background 150ms ease, color 150ms ease;
+    transition: border-color var(--dur-hover) ease, background var(--dur-hover) ease, color var(--dur-hover) ease;
   }
 
   .back-link:active,

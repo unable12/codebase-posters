@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { RepoDataset } from '../core/schema';
 import type { AnyParams, Recipe } from '../core/types';
 import { defaultParams } from '../core/types';
@@ -19,6 +19,9 @@ function useDebounced<T>(value: T, ms: number): T {
   return debounced;
 }
 
+/** First detail open per page load only — survives Detail remounts across posters. */
+let hasAutoplayed = false;
+
 interface Props {
   recipe: Recipe;
   data: RepoDataset;
@@ -34,37 +37,142 @@ export function Detail({ recipe, data, index, total, onBack, onNavigate }: Props
   const [seed, setSeed] = useState(1);
   const [t, setT] = useState(1);
   const [playing, setPlaying] = useState(false);
+  /** When true, playLoop runs once and stops at t=1 (autoplay). Manual play loops. */
+  const [playOnce, setPlayOnce] = useState(false);
   const [duration, setDuration] = useState(7);
-  const [busy, setBusy] = useState<string | null>(null);
+  const [busy, setBusy] = useState<'image' | 'animation' | null>(null);
+  const [done, setDone] = useState<'image' | 'animation' | null>(null);
   const [editing, setEditing] = useState(false);
   const [bleed, setBleed] = useState(false);
   const [labelSwap, setLabelSwap] = useState<'image' | 'animation' | null>(null);
+  const [canvasFading, setCanvasFading] = useState(false);
 
   const renderParams = useDebounced(params, 150);
   const renderSeed = useDebounced(seed, 150);
 
-  useEffect(() => {
-    if (!playing) return;
-    return playLoop(duration * 1000, setT);
-  }, [playing, duration]);
+  const autoplayTimers = useRef<number[]>([]);
+  const autoplayActiveRef = useRef(false);
+  const doneTimer = useRef<number | null>(null);
+  const imageLabelMounted = useRef(false);
+  const videoLabelMounted = useRef(false);
+
+  const clearAutoplayTimers = () => {
+    for (const id of autoplayTimers.current) window.clearTimeout(id);
+    autoplayTimers.current = [];
+  };
+
+  /** Abort the first-open sequence and land on the finished poster. No-op if idle. */
+  const cancelAutoplay = () => {
+    clearAutoplayTimers();
+    setCanvasFading(false);
+    if (!autoplayActiveRef.current) return;
+    autoplayActiveRef.current = false;
+    setPlayOnce(false);
+    setPlaying(false);
+    setT(1);
+  };
 
   useEffect(() => {
-    if (!busy) return;
-    setLabelSwap(busy as 'image' | 'animation');
-    const id = setTimeout(() => setLabelSwap(null), 200);
-    return () => clearTimeout(id);
-  }, [busy]);
+    if (!playing) return;
+    return playLoop(
+      duration * 1000,
+      (next) => {
+        setT(next);
+        if (playOnce && next >= 1) {
+          autoplayActiveRef.current = false;
+          setPlaying(false);
+          setPlayOnce(false);
+        }
+      },
+      !playOnce,
+    );
+  }, [playing, duration, playOnce]);
+
+  // First-open autoplay: morph + hold → fade to paper → paint once → rest at t=1
+  useEffect(() => {
+    if (hasAutoplayed) return;
+    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      hasAutoplayed = true;
+      return;
+    }
+    hasAutoplayed = true;
+    autoplayActiveRef.current = true;
+
+    const fadeAt = window.setTimeout(() => {
+      setCanvasFading(true);
+      const startPlay = window.setTimeout(() => {
+        setCanvasFading(false);
+        setT(0);
+        setPlayOnce(true);
+        setPlaying(true);
+      }, 250);
+      autoplayTimers.current.push(startPlay);
+    }, 840); // morph (~340ms) + hold (~500ms)
+    autoplayTimers.current.push(fadeAt);
+
+    return () => clearAutoplayTimers();
+  }, []);
+
+  const imageLabel =
+    busy === 'image' ? 'saving…' : done === 'image' ? 'saved ✓' : 'Save print';
+  const videoLabel =
+    busy === 'animation' ? 'encoding…' : done === 'animation' ? 'saved ✓' : 'Save video';
+
+  useEffect(() => {
+    if (!imageLabelMounted.current) {
+      imageLabelMounted.current = true;
+      return;
+    }
+    setLabelSwap('image');
+    const id = window.setTimeout(() => setLabelSwap(null), 200);
+    return () => window.clearTimeout(id);
+  }, [imageLabel]);
+
+  useEffect(() => {
+    if (!videoLabelMounted.current) {
+      videoLabelMounted.current = true;
+      return;
+    }
+    setLabelSwap('animation');
+    const id = window.setTimeout(() => setLabelSwap(null), 200);
+    return () => window.clearTimeout(id);
+  }, [videoLabel]);
+
+  useEffect(() => {
+    return () => {
+      if (doneTimer.current !== null) window.clearTimeout(doneTimer.current);
+    };
+  }, []);
+
+  const markDone = (kind: 'image' | 'animation') => {
+    if (doneTimer.current !== null) window.clearTimeout(doneTimer.current);
+    setDone(kind);
+    doneTimer.current = window.setTimeout(() => {
+      setDone(null);
+      doneTimer.current = null;
+    }, 1400);
+  };
 
   // gallery-style keyboard navigation
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLSelectElement) return;
-      if (e.key === 'ArrowLeft') onNavigate(-1);
-      else if (e.key === 'ArrowRight') onNavigate(1);
-      else if (e.key === 'Escape') onBack();
-      else if (e.key === ' ') {
+      if (e.key === 'ArrowLeft') {
+        cancelAutoplay();
+        onNavigate(-1);
+      } else if (e.key === 'ArrowRight') {
+        cancelAutoplay();
+        onNavigate(1);
+      } else if (e.key === 'Escape') {
+        cancelAutoplay();
+        onBack();
+      } else if (e.key === ' ') {
         e.preventDefault();
-        setPlaying((p) => !p);
+        if (autoplayActiveRef.current) {
+          cancelAutoplay();
+        } else {
+          setPlaying((p) => !p);
+        }
       }
     };
     window.addEventListener('keydown', onKey);
@@ -75,43 +183,72 @@ export function Detail({ recipe, data, index, total, onBack, onNavigate }: Props
   const pixelWidth = 1350;
 
   const saveImage = async () => {
+    if (doneTimer.current !== null) {
+      window.clearTimeout(doneTimer.current);
+      doneTimer.current = null;
+    }
+    setDone(null);
     setBusy('image');
     try {
       await exportPNG(recipe, data, params, seed, t, undefined, bleed);
+      markDone('image');
+    } catch {
+      /* failed export — no celebration */
     } finally {
       setBusy(null);
     }
   };
 
   const saveAnimation = async () => {
+    if (doneTimer.current !== null) {
+      window.clearTimeout(doneTimer.current);
+      doneTimer.current = null;
+    }
+    setDone(null);
     setBusy('animation');
     try {
       await exportVideo(recipe, data, params, seed, duration);
+      markDone('animation');
+    } catch {
+      /* failed export — no celebration */
     } finally {
       setBusy(null);
     }
   };
 
+  const navigate = (dir: number) => {
+    cancelAutoplay();
+    onNavigate(dir);
+  };
+
   return (
     <div className="detail">
-      <button className="nav-arrow" onClick={() => onNavigate(-1)} title="previous (←)">
+      <button className="nav-arrow" onClick={() => navigate(-1)} title="previous (←)">
         ‹
       </button>
 
       <div className="stage">
-        <RecipeCanvas
-          recipe={recipe}
-          data={data}
-          params={renderParams}
-          seed={renderSeed}
-          t={t}
-          pixelWidth={pixelWidth}
-          draft={playing}
-        />
+        <div className={`stage-canvas ${canvasFading ? 'fading' : ''}`}>
+          <RecipeCanvas
+            recipe={recipe}
+            data={data}
+            params={renderParams}
+            seed={renderSeed}
+            t={t}
+            pixelWidth={pixelWidth}
+            draft={playing}
+          />
+        </div>
         <div className="player">
           <button
             className="play"
-            onClick={() => setPlaying((p) => !p)}
+            onClick={() => {
+              if (autoplayActiveRef.current) {
+                cancelAutoplay();
+              } else {
+                setPlaying((p) => !p);
+              }
+            }}
             title="play/pause (space)"
           >
             {playing ? '⏸' : '▶'}
@@ -123,6 +260,7 @@ export function Detail({ recipe, data, index, total, onBack, onNavigate }: Props
             step={0.001}
             value={t}
             onChange={(e) => {
+              cancelAutoplay();
               setPlaying(false);
               setT(parseFloat(e.target.value));
             }}
@@ -131,20 +269,20 @@ export function Detail({ recipe, data, index, total, onBack, onNavigate }: Props
         </div>
       </div>
 
-      <button className="nav-arrow" onClick={() => onNavigate(1)} title="next (→)">
+      <button className="nav-arrow" onClick={() => navigate(1)} title="next (→)">
         ›
       </button>
 
       <div className="panel">
         <div className="placard-head">
           <div className="mobile-nav">
-            <button type="button" onClick={() => onNavigate(-1)} aria-label="previous poster">
+            <button type="button" onClick={() => navigate(-1)} aria-label="previous poster">
               ‹
             </button>
             <span>
               {index + 1} / {total}
             </span>
-            <button type="button" onClick={() => onNavigate(1)} aria-label="next poster">
+            <button type="button" onClick={() => navigate(1)} aria-label="next poster">
               ›
             </button>
           </div>
@@ -207,24 +345,30 @@ export function Detail({ recipe, data, index, total, onBack, onNavigate }: Props
         <div className="placard-footer">
           <div className="actions">
             <button
-              className={labelSwap === 'image' ? 'label-swapping' : ''}
+              className={`${labelSwap === 'image' ? 'label-swapping' : ''} ${done === 'image' ? 'save-done' : ''}`}
               disabled={!!busy}
               onClick={saveImage}
               title="3600×4800 px — 12×16 in at 300 DPI"
             >
-              {busy === 'image' ? 'saving…' : 'Save print'}
+              {imageLabel}
             </button>
             <button
-              className={labelSwap === 'animation' ? 'label-swapping' : ''}
+              className={`${labelSwap === 'animation' ? 'label-swapping' : ''} ${done === 'animation' ? 'save-done' : ''}`}
               disabled={!!busy}
               onClick={saveAnimation}
               title={`${duration}s MP4, encoded in the browser`}
             >
-              {busy === 'animation' ? 'encoding…' : 'Save video'}
+              {videoLabel}
             </button>
           </div>
           <p className="export-note">print: 12×16 in · 300 DPI &nbsp;·&nbsp; video: {duration}s mp4</p>
-          <button className="edit-link" onClick={() => setEditing((e) => !e)}>
+          <button
+            className="edit-link"
+            onClick={() => {
+              cancelAutoplay();
+              setEditing((e) => !e);
+            }}
+          >
             {editing ? '✓ done' : '✎ edit parameters'}
           </button>
         </div>

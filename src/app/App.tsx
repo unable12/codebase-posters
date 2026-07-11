@@ -19,18 +19,47 @@ function withViewTransition(update: () => void): { finished: Promise<void> } {
   return start(() => flushSync(update));
 }
 
+function readOriented(): boolean {
+  try {
+    return localStorage.getItem('cp-oriented') === '1';
+  } catch {
+    return true; // privacy modes: skip the tip rather than throw
+  }
+}
+
+function writeOriented(): void {
+  try {
+    localStorage.setItem('cp-oriented', '1');
+  } catch {
+    /* ignore */
+  }
+}
+
 export function App() {
   const [repos, setRepos] = useState<RepoListing[]>([]);
   const [repoPath, setRepoPath] = useState<string>('');
   const [data, setData] = useState<RepoDataset | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<number | null>(null);
+  const [showOrient, setShowOrient] = useState(() => !readOriented());
+  const [orientLeaving, setOrientLeaving] = useState(false);
 
   // the clicked thumbnail morphs into the detail poster (and back)
   const thumbCanvas = (i: number) =>
     document.querySelectorAll<HTMLCanvasElement>('.gallery .thumb canvas')[i] ?? null;
 
+  const dismissOrient = () => {
+    if (!showOrient || orientLeaving) return;
+    writeOriented();
+    setOrientLeaving(true);
+    window.setTimeout(() => {
+      setShowOrient(false);
+      setOrientLeaving(false);
+    }, 200);
+  };
+
   const openDetail = (i: number) => {
+    dismissOrient();
     const el = thumbCanvas(i);
     if (el) el.style.viewTransitionName = 'poster';
     withViewTransition(() => setSelected(i)).finished.finally(() => {
@@ -145,6 +174,16 @@ export function App() {
         // stays mounted while a piece is open so thumbnails keep their pixels —
         // the back-morph lands on a painted thumb and reopening is instant
         <div className="gallery" style={{ display: selected === null ? undefined : 'none' }}>
+          {showOrient && (
+            <button
+              type="button"
+              className={`orient-note ${orientLeaving ? 'leaving' : ''}`}
+              onClick={dismissOrient}
+            >
+              ten posters, painted from {data.meta.name}'s {data.meta.commitCount} commits.
+              click one.
+            </button>
+          )}
           {recipes.map((r, i) => (
             <button key={r.id} className="thumb" onClick={() => openDetail(i)}>
               <RecipeCanvas

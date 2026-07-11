@@ -3,7 +3,7 @@ import type { RepoDataset } from '../core/schema';
 import type { AnyParams, Recipe } from '../core/types';
 import { DESIGN_HEIGHT, DESIGN_WIDTH } from '../core/types';
 import { renderFrame } from '../core/renderHost';
-import { download } from './png';
+import { download, exportBasename } from './png';
 import { exportFrames } from './frames';
 
 /**
@@ -69,6 +69,6 @@ export async function exportVideo(
 
   download(
     new Blob([muxer.target.buffer], { type: 'video/mp4' }),
-    `${data.meta.name}-${recipe.id}-s${seed}.mp4`,
+    `${exportBasename(data.meta.name, recipe.id, seed)}.mp4`,
   );
 }

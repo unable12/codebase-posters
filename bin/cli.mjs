@@ -3,14 +3,20 @@
 // Everything runs locally: nothing is uploaded, nothing is written to disk.
 
 import { execFile } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
 import { promisify } from 'node:util';
 
 const run = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
+const pkg = JSON.parse(readFileSync(join(here, '..', 'package.json'), 'utf8'));
 
 const args = process.argv.slice(2);
+if (args.includes('--version') || args.includes('-v')) {
+  console.log(pkg.version);
+  process.exit(0);
+}
 if (args.includes('--help') || args.includes('-h')) {
   console.log(`
 codebase-posters — your repository as generative art
@@ -23,6 +29,7 @@ usage:
 options:
   --port <n>   port to serve on (default: random free port)
   --no-open    don't open the browser automatically
+  --version    print version and exit
   --help       show this help
 
 privacy:
@@ -49,6 +56,13 @@ try {
   process.exit(1);
 }
 
+try {
+  await run('git', ['rev-parse', 'HEAD'], { cwd: repoPath });
+} catch {
+  console.error('\n  this repository has no commits yet — make one, then paint it.\n');
+  process.exit(1);
+}
+
 const { startStandalone } = await import(join(here, '..', 'dist', 'server.mjs'));
 const actualPort = await startStandalone({
   repoPath,
@@ -68,9 +82,13 @@ console.log(`
 `);
 
 if (!noOpen) {
-  const opener =
-    process.platform === 'darwin' ? 'open' : process.platform === 'win32' ? 'start' : 'xdg-open';
-  execFile(opener, [url], () => {
-    /* if the browser doesn't open, the URL is printed above */
-  });
+  if (process.platform === 'win32') {
+    execFile('cmd', ['/c', 'start', '', url], () => {
+      /* if the browser doesn't open, the URL is printed above */
+    });
+  } else {
+    execFile(process.platform === 'darwin' ? 'open' : 'xdg-open', [url], () => {
+      /* if the browser doesn't open, the URL is printed above */
+    });
+  }
 }

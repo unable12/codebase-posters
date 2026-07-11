@@ -7,7 +7,10 @@ import { extractRepo } from './extract/derive';
 import { headSha } from './extract/gitlog';
 import type { RepoListing } from '../src/core/schema';
 
-const SCAN_ROOTS = [join(homedir(), 'code_base')];
+const SCAN_ROOTS = (process.env.SCAN_ROOTS ?? join(homedir(), 'code_base'))
+  .split(/[:;]/)
+  .map((p) => p.trim())
+  .filter(Boolean);
 const CACHE_DIR = resolve(import.meta.dirname, '..', 'data-cache');
 
 async function listRepos(): Promise<RepoListing[]> {

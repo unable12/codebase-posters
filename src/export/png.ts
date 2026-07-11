@@ -12,6 +12,15 @@ function download(blob: Blob, filename: string): void {
   URL.revokeObjectURL(url);
 }
 
+/** Strip gallery-ordering prefixes like `02b-` from recipe ids for filenames. */
+export function recipeSlug(id: string): string {
+  return id.replace(/^[0-9]+[a-z]?-/, '');
+}
+
+export function exportBasename(repo: string, recipeId: string, seed: number, bleed = false): string {
+  return `${repo}-${recipeSlug(recipeId)}-seed${seed}${bleed ? '-bleed' : ''}`;
+}
+
 /** 12x16 in at 300 DPI: 3600x4800 px (design 1500x2000 x 2.4). */
 export const PRINT_SCALE = 2.4;
 /** 3 mm bleed at 300 DPI ≈ 35 px per side on the final print. */
@@ -45,7 +54,7 @@ export async function exportPNG(
   }
 
   const blob = await out.convertToBlob({ type: 'image/png' });
-  download(blob, `${data.meta.name}-${recipe.id}-s${seed}${bleed ? '-bleed' : ''}.png`);
+  download(blob, `${exportBasename(data.meta.name, recipe.id, seed, bleed)}.png`);
 }
 
 export { download };

@@ -1,6 +1,6 @@
 {
   "name": "codebase-posters",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Your repository as generative art — run one command, watch your codebase paint itself into a poster. 100% local, nothing leaves your machine.",
   "keywords": [
     "git",
@@ -13,7 +13,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/unable12/codebase-posters"
+    "url": "git+https://github.com/unable12/codebase-posters.git"
   },
   "homepage": "https://github.com/unable12/codebase-posters",
   "private": false,
