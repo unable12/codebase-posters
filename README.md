@@ -63,4 +63,4 @@ node bin/cli.mjs              # run the packaged experience locally
 add a poster: drop a file in `src/recipes/` exporting a `CanvasRecipe` (`src/core/types.ts`). it auto-registers.
 
 inspired by [zeh fernandes' gencup](https://zehfernandes.com/posts/how-i-turned-world-cup-data-into-posters).
-MIT.
+made by [kamil](https://x.com/unable0_). MIT.

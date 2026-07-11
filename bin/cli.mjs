@@ -35,6 +35,8 @@ options:
 privacy:
   everything runs locally. your code and git history never leave
   your machine — no uploads, no telemetry, no disk writes.
+
+made by kamil — x.com/unable0_
 `);
   process.exit(0);
 }
