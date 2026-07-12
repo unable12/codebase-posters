@@ -167,13 +167,7 @@ export function Detail({ recipe, data, index, total, onBack, onNavigate }: Props
         <div className="player">
           <button
             className="play"
-            onClick={() => {
-              if (autoplayActiveRef.current) {
-                cancelAutoplay();
-              } else {
-                setPlaying((p) => !p);
-              }
-            }}
+            onClick={() => setPlaying((p) => !p)}
             title="play/pause (space)"
           >
             {playing ? '⏸' : '▶'}
@@ -185,7 +179,6 @@ export function Detail({ recipe, data, index, total, onBack, onNavigate }: Props
             step={0.001}
             value={t}
             onChange={(e) => {
-              cancelAutoplay();
               setPlaying(false);
               setT(parseFloat(e.target.value));
             }}
@@ -194,20 +187,20 @@ export function Detail({ recipe, data, index, total, onBack, onNavigate }: Props
         </div>
       </div>
 
-      <button className="nav-arrow" onClick={() => navigate(1)} title="next (→)">
+      <button className="nav-arrow" onClick={() => onNavigate(1)} title="next (→)">
         ›
       </button>
 
       <div className="panel">
         <div className="placard-head">
           <div className="mobile-nav">
-            <button type="button" onClick={() => navigate(-1)} aria-label="previous poster">
+            <button type="button" onClick={() => onNavigate(-1)} aria-label="previous poster">
               ‹
             </button>
             <span>
               {index + 1} / {total}
             </span>
-            <button type="button" onClick={() => navigate(1)} aria-label="next poster">
+            <button type="button" onClick={() => onNavigate(1)} aria-label="next poster">
               ›
             </button>
           </div>
@@ -287,13 +280,7 @@ export function Detail({ recipe, data, index, total, onBack, onNavigate }: Props
             </button>
           </div>
           <p className="export-note">print: 12×16 in · 300 DPI &nbsp;·&nbsp; video: {duration}s mp4</p>
-          <button
-            className="edit-link"
-            onClick={() => {
-              cancelAutoplay();
-              setEditing((e) => !e);
-            }}
-          >
+          <button className="edit-link" onClick={() => setEditing((e) => !e)}>
             {editing ? '✓ done' : '✎ edit parameters'}
           </button>
         </div>

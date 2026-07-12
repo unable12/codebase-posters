@@ -210,10 +210,6 @@ body {
   display: flex;
   justify-content: center;
   max-width: 100%;
-  transition: opacity 250ms ease;
-}
-.stage-canvas.fading {
-  opacity: 0.02;
 }
 
 /* thumbnail <-> poster morph */
