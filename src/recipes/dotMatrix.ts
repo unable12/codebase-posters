@@ -127,16 +127,16 @@ const recipe: CanvasRecipe<
   engine: 'canvas2d',
   id: '18-dot-matrix',
   name: 'Dot Matrix',
-  description: 'Your codebase as a tractor-feed printout — activity bars stamped one printer-dot at a time.',
+  description: 'Your codebase as a tractor-feed printout: activity bars stamped one printer-dot at a time.',
   family: 'texture',
   room: 'texture',
   meaning: [
-    { label: 'The medium', text: 'An impact printer, one dot at a time — sprockets, greenbar, worn ribbon.' },
+    { label: 'The medium', text: 'An impact printer, one dot at a time: sprockets, greenbar, worn ribbon.' },
     { label: 'Bars', text: 'Each row is a slice of time. Color A grows to the left of center; B prunes to the right.' },
-    { label: 'Misfires', text: 'Some dots skip or print light — the ribbon was old. Deterministic per seed; change the seed for a fresher ribbon.' },
+    { label: 'Misfires', text: 'Some dots skip or print light: the ribbon was old. Deterministic per seed; change the seed for a fresher ribbon.' },
     { label: 'Sprockets & greenbar', text: 'The paper your codebase would have been printed on in 1982.' },
     { label: 'Dated rows', text: 'Biggest commits print their date at the end of the bar.' },
-    { label: 'Animation', text: 'It prints — a carriage sweeps each row, then the head is gone and the job is done.' },
+    { label: 'Animation', text: 'It prints. A carriage sweeps each row, then the head is gone and the job is done.' },
   ],
   params: {
     palette: { type: 'select', label: 'Palette', default: 'ember-slate', options: PALETTE_NAMES },
@@ -145,7 +145,7 @@ const recipe: CanvasRecipe<
     rows: { type: 'number', label: 'Rows', default: 64, min: 40, max: 90, step: 1 },
   },
   prepare(data, params) {
-    const nRows = Math.round(params.rows);
+    const nRows = Number.isFinite(params.rows) ? Math.max(1, Math.round(params.rows)) : 64;
     const buckets = Array.from({ length: nRows }, () => ({
       add: 0,
       del: 0,

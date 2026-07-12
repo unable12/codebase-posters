@@ -29,7 +29,18 @@ interface Props {
 
 export function Exhibition({ data, selected, onSelect }: Props) {
   const recipe = recipes[selected];
-  const [params, setParams] = useState<AnyParams>(() => defaultParams(recipe.params));
+  // Bind params to the recipe id during render so a switch never paints one
+  // frame with the previous piece's params (effects run too late).
+  const [piece, setPiece] = useState(() => ({
+    id: recipe.id,
+    params: defaultParams(recipe.params),
+  }));
+  if (piece.id !== recipe.id) {
+    setPiece({ id: recipe.id, params: defaultParams(recipe.params) });
+  }
+  const params = piece.params;
+  const setParams = (p: AnyParams) => setPiece({ id: recipe.id, params: p });
+
   const [seed, setSeed] = useState(1);
   const [t, setT] = useState(1);
   const [playing, setPlaying] = useState(false);
@@ -40,7 +51,9 @@ export function Exhibition({ data, selected, onSelect }: Props) {
   const [bleed, setBleed] = useState(false);
   const [labelSwap, setLabelSwap] = useState<'image' | 'animation' | null>(null);
 
-  const renderParams = useDebounced(params, 150);
+  const debounced = useDebounced(piece, 150);
+  const renderParams =
+    debounced.id === recipe.id ? debounced.params : defaultParams(recipe.params);
   const renderSeed = useDebounced(seed, 150);
 
   const doneTimer = useRef<number | null>(null);
@@ -51,9 +64,8 @@ export function Exhibition({ data, selected, onSelect }: Props) {
 
   // reset piece state when the selected recipe changes: every poster is
   // presented finished (t=1) and at rest; play belongs to the piece it
-  // was started on
+  // was started on. Params reset above during render — not here.
   useEffect(() => {
-    setParams(defaultParams(recipe.params));
     setSeed(1);
     setT(1);
     setPlaying(false);
@@ -268,7 +280,7 @@ export function Exhibition({ data, selected, onSelect }: Props) {
                 className={`${labelSwap === 'image' ? 'label-swapping' : ''} ${done === 'image' ? 'save-done' : ''}`}
                 disabled={!!busy}
                 onClick={saveImage}
-                title="3600×4800 px — 12×16 in at 300 DPI"
+                title="3600×4800 px, 12×16 in at 300 DPI"
               >
                 {imageLabel}
               </button>
