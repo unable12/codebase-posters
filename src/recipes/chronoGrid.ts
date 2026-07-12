@@ -41,6 +41,7 @@ const recipe: CanvasRecipe<{
   name: 'Chrono-Grid Confrontation',
   description: 'The life of the repo as weather: growth and cleanup as two winds pushing against each other.',
   family: 'flow',
+  room: 'time',
   meaning: [
     { label: 'The grid', text: 'Time reads like a page: left to right, top to bottom. The top-left is the first commit, the bottom-right is today. Every file change lands where it happened in that timeline.' },
     { label: 'Blue-ish strokes (color A)', text: 'Changes that mostly ADDED code. They blow leftward — the force of growth.' },

@@ -77,6 +77,7 @@ const recipe: CanvasRecipe<
   name: 'Treemap Fresco',
   description: 'The repo as a wall of painted tiles — every file gets the space it takes up.',
   family: 'structure',
+  room: 'structure',
   meaning: [
     { label: 'Tiles', text: 'One tile per file. Its area is the file’s size in bytes — big tiles are big files.' },
     { label: 'Color blend', text: 'Recency. Tiles shift toward color A when recently edited, toward color B when untouched for long. You can see at a glance where the live edge of the project is.' },

@@ -18,6 +18,7 @@ const recipe: CanvasRecipe<{
   name: 'Ridgelines',
   description: 'The repo’s life as a mountain range — each ridge one slice of time, peaks where the work was.',
   family: 'timeline',
+  room: 'time',
   meaning: [
     { label: 'Ridges', text: 'The repo’s lifetime cut into equal slices of time, top to bottom: the first ridge is the beginning, the last is now. Each ridge is that period’s horizon.' },
     { label: 'Peaks', text: 'Mountains rise where commits landed — height is churn, so a violent week makes an alp and a quiet one stays a plain.' },

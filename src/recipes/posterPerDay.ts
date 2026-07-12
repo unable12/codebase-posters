@@ -36,6 +36,7 @@ const recipe: CanvasRecipe<{
   name: 'One Poster Per Day',
   description: 'Every day of the repo’s life gets a cell — storms on working days, silence on the rest.',
   family: 'timeline',
+  room: 'time',
   meaning: [
     { label: 'Cells', text: 'One cell per calendar day, first commit to last, reading like text. Days you worked become small storm cards; days you didn’t stay as faint empty outlines — the silence is part of the diary.' },
     { label: 'Rising strokes (color A)', text: 'Additions — code growing upward from the ground of the card.' },

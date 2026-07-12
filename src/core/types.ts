@@ -47,12 +47,17 @@ export interface Frame {
 
 export type RecipeFamily = 'flow' | 'structure' | 'timeline' | 'texture' | 'particles';
 
+/** Presentation grouping for the filmstrip rooms. */
+export type RecipeRoom = 'time' | 'structure' | 'people' | 'texture';
+
 export interface CanvasRecipe<S extends ParamSchema = ParamSchema, P = unknown> {
   engine: 'canvas2d';
   id: string;
   name: string;
   description: string;
   family: RecipeFamily;
+  /** Filmstrip room — presentation grouping, independent of `family`. */
+  room: RecipeRoom;
   /** "How to read this" legend: what colors, shapes, and motion represent. */
   meaning: { label: string; text: string }[];
   params: S;

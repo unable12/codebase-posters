@@ -68,6 +68,7 @@ const recipe: CanvasRecipe<
   name: 'Constellations',
   description: 'Every work session a constellation on a vintage star chart — commits as stars, joined in sequence.',
   family: 'timeline',
+  room: 'time',
   meaning: [
     { label: 'Stars', text: 'One star per commit, sized by how much it changed. Bright heavy stars are the big commits.' },
     { label: 'Constellations', text: 'Commits made within two hours of each other belong to one work session — one star sign. The hairlines join them in the order you made them.' },

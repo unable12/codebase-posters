@@ -16,6 +16,7 @@ const recipe: CanvasRecipe<{
   name: 'Indentation Skyline',
   description: 'The text of the code itself, woven line by line into a textile.',
   family: 'texture',
+  room: 'texture',
   meaning: [
     { label: 'Threads', text: 'Every horizontal bar is one real line from your codebase, in reading order, top to bottom.' },
     { label: 'Left vs right', text: 'Files alternate edges: one file weaves in from the left (color A), the next from the right (color B). Where they interlace, files meet.' },

@@ -1,59 +1,15 @@
 import { useEffect, useState } from 'react';
-import { flushSync } from 'react-dom';
 import type { RepoDataset, RepoListing } from '../core/schema';
-import { defaultParams } from '../core/types';
 import { recipes } from '../core/registry';
 import { fetchDataset, fetchRepos } from './api';
-import { RecipeCanvas } from './RecipeCanvas';
-import { Detail } from './Detail';
-
-/** Run a state change inside a view transition when the browser supports it. */
-function withViewTransition(update: () => void): { finished: Promise<void> } {
-  const start = (document as Document & {
-    startViewTransition?: (cb: () => void) => { finished: Promise<void> };
-  }).startViewTransition?.bind(document);
-  if (!start) {
-    update();
-    return { finished: Promise.resolve() };
-  }
-  return start(() => flushSync(update));
-}
+import { Exhibition } from './Exhibition';
 
 export function App() {
   const [repos, setRepos] = useState<RepoListing[]>([]);
   const [repoPath, setRepoPath] = useState<string>('');
   const [data, setData] = useState<RepoDataset | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [selected, setSelected] = useState<number | null>(null);
-
-  // the clicked thumbnail morphs into the detail poster (and back)
-  const thumbCanvas = (i: number) =>
-    document.querySelectorAll<HTMLCanvasElement>('.gallery .thumb canvas')[i] ?? null;
-
-  const openDetail = (i: number) => {
-    const el = thumbCanvas(i);
-    if (el) el.style.viewTransitionName = 'poster';
-    withViewTransition(() => setSelected(i)).finished.finally(() => {
-      if (el) el.style.viewTransitionName = '';
-    });
-  };
-
-  const closeDetail = () => {
-    const idx = selected;
-    const vt = withViewTransition(() => {
-      setSelected(null);
-      if (idx !== null) {
-        const el = thumbCanvas(idx);
-        if (el) el.style.viewTransitionName = 'poster';
-      }
-    });
-    vt.finished.finally(() => {
-      if (idx !== null) {
-        const el = thumbCanvas(idx);
-        if (el) el.style.viewTransitionName = '';
-      }
-    });
-  };
+  const [selected, setSelected] = useState(0);
 
   useEffect(() => {
     fetchRepos()
@@ -71,7 +27,7 @@ export function App() {
     let stale = false;
     setData(null);
     setError(null);
-    setSelected(null); // switching repos always returns to the gallery
+    setSelected(0);
     fetchDataset(repoPath)
       .then((d) => {
         if (!stale) setData(d);
@@ -87,13 +43,7 @@ export function App() {
   return (
     <div className="app">
       <div className="topbar">
-        <div className="topbar-side">
-          {selected !== null && (
-            <button className="back-link" onClick={closeDetail}>
-              ← gallery
-            </button>
-          )}
-        </div>
+        <div className="topbar-side" />
         <div className="topbar-center">
           <h1>CODEBASE POSTERS</h1>
           {repos.length === 1 ? (
@@ -114,68 +64,40 @@ export function App() {
             </span>
           )}
         </div>
-        <div className="topbar-side dots">
-          {selected !== null &&
-            recipes.map((r, i) => (
-              <button
-                key={r.id}
-                className={`dot ${i === selected ? 'on' : ''}`}
-                title={r.name}
-                onClick={() => setSelected(i)}
-              />
-            ))}
-        </div>
+        <div className="topbar-side" />
       </div>
 
       {error && <div className="status">error: {error}</div>}
+
       {!error && !data && (
-        <div className="gallery">
-          <div className="skeleton-note">
-            preparing the gallery for {repos.find((r) => r.path === repoPath)?.name ?? 'this repository'}
-          </div>
-          {Array.from({ length: 10 }, (_, i) => (
-            <div key={i} className="thumb skeleton">
-              <div className="skeleton-card" style={{ '--i': i } as React.CSSProperties} />
-            </div>
-          ))}
-        </div>
-      )}
-
-      {data && (
-        // stays mounted while a piece is open so thumbnails keep their pixels —
-        // the back-morph lands on a painted thumb and reopening is instant
-        <div className="gallery" style={{ display: selected === null ? undefined : 'none' }}>
-          {recipes.map((r, i) => (
-            <button key={r.id} className="thumb" onClick={() => openDetail(i)}>
-              <RecipeCanvas
-                recipe={r}
-                data={data}
-                params={defaultParams(r.params)}
-                seed={1}
-                t={1}
-                pixelWidth={480}
-                queued
-                quality={0.4}
-              />
-              <div className="label">
-                {r.name} · {r.family}
+        <div className="exhibition skeleton-exhibition">
+          <div className="detail">
+            <div className="stage">
+              <div className="stage-canvas">
+                <div className="skeleton-card stage-skeleton" />
               </div>
-            </button>
-          ))}
+              <div className="player skeleton-player" />
+            </div>
+            <div className="panel skeleton-panel">
+              <div className="skeleton-note">
+                preparing the exhibition for{' '}
+                {repos.find((r) => r.path === repoPath)?.name ?? 'this repository'}
+              </div>
+            </div>
+          </div>
+          <div className="filmstrip">
+            {Array.from({ length: Math.max(10, recipes.length) }, (_, i) => (
+              <div key={i} className="filmstrip-item">
+                <div className="strip-thumb skeleton">
+                  <div className="skeleton-card" style={{ '--i': i } as React.CSSProperties} />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
-      {data && selected !== null && (
-        <Detail
-          key={recipes[selected].id}
-          recipe={recipes[selected]}
-          data={data}
-          index={selected}
-          total={recipes.length}
-          onBack={closeDetail}
-          onNavigate={(dir) => setSelected((selected + dir + recipes.length) % recipes.length)}
-        />
-      )}
+      {data && <Exhibition data={data} selected={selected} onSelect={setSelected} />}
     </div>
   );
 }

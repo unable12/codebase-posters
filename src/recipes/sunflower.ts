@@ -22,6 +22,7 @@ const recipe: CanvasRecipe<
   name: 'Sunflower',
   description: 'Every file a seed at the golden angle, planted in the order it was created.',
   family: 'structure',
+  room: 'structure',
   meaning: [
     { label: 'Seeds', text: 'One seed per file, placed by the same golden-angle rule sunflowers use. The repo grows like a flower head: earliest files at the center, newest at the rim.' },
     { label: 'Seed size', text: 'The file’s size in bytes.' },

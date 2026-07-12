@@ -16,6 +16,7 @@ const recipe: CanvasRecipe<{
   name: 'Rain',
   description: 'Commits as rainfall on an hour-of-day field — the poster of when you actually work.',
   family: 'timeline',
+  room: 'time',
   meaning: [
     { label: 'The field', text: 'Across: the 24 hours of a day, midnight to midnight. Down: every calendar day of the repo, first at the top. Each drop lands at the exact hour its commit was made.' },
     { label: 'Drops & streaks', text: 'One drop per commit; the streak above it is the falling trail — longer for bigger commits. Columns of rain reveal your working hours; a drop far from the others is a 3am fix.' },
