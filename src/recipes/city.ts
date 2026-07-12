@@ -100,7 +100,7 @@ const recipe: CanvasRecipe<
     { label: 'Footprint', text: 'Larger files take a wider plot on the ground.' },
     { label: 'Height', text: 'Towers are the files you kept coming back to: height rises with how many times a file was touched.' },
     { label: 'Districts', text: 'Top-level folders are neighborhoods; street labels name them.' },
-    { label: 'Tone', text: 'Roofs darken with recency: old town stays pale, the live edge goes dark. An optional accent outline marks files touched in the final stretch of history.' },
+    { label: 'Color', text: 'Fresco tones over the paper: old town sits in pale slate, the live edge warms toward ember. An optional accent outline marks files touched in the final stretch of history.' },
     { label: 'Animation', text: 'The city assembles in creation order. Founding files extrude first; later arrivals rise after.' },
     { label: 'No goal dots', text: 'This piece is structural, not temporal. The biggest commits live in the timeline room.' },
   ],
@@ -261,12 +261,26 @@ const recipe: CanvasRecipe<
     const n = Math.max(1, buildings.length - 1);
     const [pr, pg, pb] = hexToRgb(pal.paper);
     const [ir, ig, ib] = hexToRgb(pal.ink);
+    const [ar, ag, ab] = hexToRgb(pal.a);
+    const [br, bg, bb] = hexToRgb(pal.b);
 
-    // Ink-wash city: tone only (paper→ink). Old files pale, fresh files dark.
-    const mixInk = (amt: number): [number, number, number] => [
-      Math.round(pr + (ir - pr) * amt),
-      Math.round(pg + (ig - pg) * amt),
-      Math.round(pb + (ib - pb) * amt),
+    // Fresco tones (same trick as Treemap Fresco): recency mixes B toward A,
+    // then the color is laid over the paper as a wash so it stays muted.
+    // Fresh files get a slightly stronger wash; side faces shade toward ink.
+    const wash = (recency: number, strength: number): [number, number, number] => {
+      const r = br + (ar - br) * recency;
+      const g = bg + (ag - bg) * recency;
+      const bl = bb + (ab - bb) * recency;
+      return [
+        Math.round(pr + (r - pr) * strength),
+        Math.round(pg + (g - pg) * strength),
+        Math.round(pb + (bl - pb) * strength),
+      ];
+    };
+    const shade = (c: [number, number, number], amt: number): [number, number, number] => [
+      Math.round(c[0] + (ir - c[0]) * amt),
+      Math.round(c[1] + (ig - c[1]) * amt),
+      Math.round(c[2] + (ib - c[2]) * amt),
     ];
     const rgb = (c: [number, number, number], a = 0.9) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
 
@@ -277,10 +291,10 @@ const recipe: CanvasRecipe<
       const hh = b.h * rev;
       if (hh < 0.05) continue;
 
-      const tone = 0.12 + 0.42 * b.file.lastT01;
-      const roof = mixInk(tone);
-      const left = mixInk(Math.min(1, tone + 0.14));
-      const right = mixInk(Math.min(1, tone + 0.28));
+      const strength = 0.38 + 0.24 * b.file.lastT01;
+      const roof = wash(b.file.lastT01, strength);
+      const left = shade(roof, 0.18);
+      const right = shade(roof, 0.34);
 
       const p000 = toScreen(b.gx, b.gy, 0);
       const p100 = toScreen(b.gx + b.w, b.gy, 0);
