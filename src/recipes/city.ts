@@ -85,29 +85,31 @@ const recipe: CanvasRecipe<
     scale: { type: 'number'; label: string; default: number; min: number; max: number; step: number };
     heightScale: { type: 'number'; label: string; default: number; min: number; max: number; step: number };
     labels: { type: 'boolean'; label: string; default: boolean };
+    accent: { type: 'boolean'; label: string; default: boolean };
   },
   CityLayout
 > = {
   engine: 'canvas2d',
   id: '08-city',
   name: 'The City',
-  description: 'Files as buildings on an isometric skyline — height is how many times you came back to rebuild them.',
+  description: 'Files as buildings on an isometric skyline: height is how many times you came back to rebuild them.',
   family: 'structure',
   room: 'structure',
   meaning: [
     { label: 'Buildings', text: 'Each building is one file that still exists at HEAD.' },
     { label: 'Footprint', text: 'Larger files take a wider plot on the ground.' },
-    { label: 'Height', text: 'Towers are the files you kept coming back to — height rises with how many times a file was touched.' },
+    { label: 'Height', text: 'Towers are the files you kept coming back to: height rises with how many times a file was touched.' },
     { label: 'Districts', text: 'Top-level folders are neighborhoods; street labels name them.' },
-    { label: 'Color', text: 'Roof color walks from the palette\'s old-town ink (B) toward the live edge (A) by how recently the file changed.' },
-    { label: 'Animation', text: 'The city assembles in creation order — founding files extrude first, later arrivals rise after.' },
-    { label: 'No goal dots', text: 'This piece is structural, not temporal — the biggest commits live in the timeline room.' },
+    { label: 'Tone', text: 'Roofs darken with recency: old town stays pale, the live edge goes dark. An optional accent outline marks files touched in the final stretch of history.' },
+    { label: 'Animation', text: 'The city assembles in creation order. Founding files extrude first; later arrivals rise after.' },
+    { label: 'No goal dots', text: 'This piece is structural, not temporal. The biggest commits live in the timeline room.' },
   ],
   params: {
-    palette: { type: 'select', label: 'Palette', default: 'ochre-indigo', options: PALETTE_NAMES },
+    palette: { type: 'select', label: 'Palette', default: 'ember-slate', options: PALETTE_NAMES },
     scale: { type: 'number', label: 'Scale', default: 1, min: 0.7, max: 1.5, step: 0.05 },
     heightScale: { type: 'number', label: 'Height scale', default: 1, min: 0.5, max: 2, step: 0.05 },
     labels: { type: 'boolean', label: 'District labels', default: true },
+    accent: { type: 'boolean', label: 'Live-edge accent', default: true },
   },
   prepare(data, params) {
     const eligible = data.files.filter((f) => f.bytes > 0).sort((a, b) => b.bytes - a.bytes);
@@ -257,21 +259,16 @@ const recipe: CanvasRecipe<
 
     const sorted = [...buildings].sort((a, b) => a.gx + a.gy - (b.gx + b.gy) || a.gy - b.gy);
     const n = Math.max(1, buildings.length - 1);
-    const [ar, ag, ab] = hexToRgb(pal.a);
-    const [br, bg, bb] = hexToRgb(pal.b);
+    const [pr, pg, pb] = hexToRgb(pal.paper);
     const [ir, ig, ib] = hexToRgb(pal.ink);
 
-    const mixRgb = (t: number): [number, number, number] => [
-      Math.round(br + (ar - br) * t),
-      Math.round(bg + (ag - bg) * t),
-      Math.round(bb + (ab - bb) * t),
+    // Ink-wash city: tone only (paper→ink). Old files pale, fresh files dark.
+    const mixInk = (amt: number): [number, number, number] => [
+      Math.round(pr + (ir - pr) * amt),
+      Math.round(pg + (ig - pg) * amt),
+      Math.round(pb + (ib - pb) * amt),
     ];
     const rgb = (c: [number, number, number], a = 0.9) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
-    const darken = (c: [number, number, number], amt: number): [number, number, number] => [
-      Math.round(c[0] * (1 - amt) + ir * amt),
-      Math.round(c[1] * (1 - amt) + ig * amt),
-      Math.round(c[2] * (1 - amt) + ib * amt),
-    ];
 
     for (const b of sorted) {
       const appearAt = (b.rank / n) * 0.94;
@@ -280,9 +277,10 @@ const recipe: CanvasRecipe<
       const hh = b.h * rev;
       if (hh < 0.05) continue;
 
-      const roof = mixRgb(b.file.lastT01);
-      const left = darken(roof, 0.25);
-      const right = darken(roof, 0.4);
+      const tone = 0.12 + 0.42 * b.file.lastT01;
+      const roof = mixInk(tone);
+      const left = mixInk(Math.min(1, tone + 0.14));
+      const right = mixInk(Math.min(1, tone + 0.28));
 
       const p000 = toScreen(b.gx, b.gy, 0);
       const p100 = toScreen(b.gx + b.w, b.gy, 0);
@@ -311,6 +309,19 @@ const recipe: CanvasRecipe<
       quad([p010, p110, p111, p011], rgb(left, 1));
       quad([p100, p110, p111, p101], rgb(right, 1));
       quad([p001, p101, p111, p011], rgb(roof, 0.9));
+
+      // live-edge accent: thin roof outline in palette A (no fill)
+      if (params.accent && b.file.lastT01 > 0.9 && frame.quality >= 0.5) {
+        ctx.beginPath();
+        ctx.moveTo(p001.x, p001.y);
+        ctx.lineTo(p101.x, p101.y);
+        ctx.lineTo(p111.x, p111.y);
+        ctx.lineTo(p011.x, p011.y);
+        ctx.closePath();
+        ctx.strokeStyle = rgba(pal.a, 0.55);
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
       void p000;
     }
 
