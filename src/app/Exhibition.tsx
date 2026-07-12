@@ -47,12 +47,13 @@ export function Exhibition({ data, selected, onSelect }: Props) {
   const imageLabelMounted = useRef(false);
   const videoLabelMounted = useRef(false);
 
-  // reset piece-specific controls when the selected recipe changes;
-  // t carries over (switching keeps the moment) but playback pauses —
-  // play belongs to the piece it was started on
+  // reset piece state when the selected recipe changes: every poster is
+  // presented finished (t=1) and at rest; play belongs to the piece it
+  // was started on
   useEffect(() => {
     setParams(defaultParams(recipe.params));
     setSeed(1);
+    setT(1);
     setPlaying(false);
     setEditing(false);
     setBleed(false);
