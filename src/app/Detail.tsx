@@ -123,7 +123,7 @@ export function Detail({ recipe, data, index, total, onBack, onNavigate }: Props
       await exportPNG(recipe, data, params, seed, t, undefined, bleed);
       markDone('image');
     } catch {
-      /* failed export — no celebration */
+      /* export failed or was cancelled; leave the button at rest */
     } finally {
       setBusy(null);
     }
@@ -140,7 +140,7 @@ export function Detail({ recipe, data, index, total, onBack, onNavigate }: Props
       await exportVideo(recipe, data, params, seed, duration);
       markDone('animation');
     } catch {
-      /* failed export — no celebration */
+      /* export failed or was cancelled; leave the button at rest */
     } finally {
       setBusy(null);
     }

@@ -141,7 +141,7 @@ body {
   text-overflow: ellipsis;
 }
 
-/* extraction skeleton: blank canvases on the gallery wall, waiting to be painted */
+/* extraction skeleton */
 .skeleton-note {
   grid-column: 1 / -1;
   font-size: 13px;
