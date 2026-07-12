@@ -95,7 +95,10 @@ body {
   position: fixed;
   inset: 0;
   z-index: 10;
-  background: rgba(20, 20, 20, 0.94);
+  /* frosted glass: the gallery recedes instead of bleeding through */
+  background: rgba(16, 16, 16, 0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -133,16 +136,17 @@ body {
 }
 .about-credits { font-size: 12px !important; color: #7a7568 !important; }
 .about-close {
+  /* lives where the "about" link was: same corner opens, same corner closes */
   position: absolute;
-  top: 8px;
-  right: 12px;
+  top: 12px;
+  right: 24px;
   background: none;
   border: none;
-  color: #666;
+  color: #999;
   font: inherit;
   font-size: 22px;
   line-height: 1;
-  padding: 8px;
+  padding: 8px 12px;
   cursor: pointer;
   transition: color var(--dur-hover) ease, transform var(--dur-press) var(--ease-out-strong);
 }
@@ -523,7 +527,11 @@ input[type='range']::-moz-range-thumb {
   .edit-link:hover { color: #e8e5de !important; }
   .strip-thumb:hover { border-color: #888; transform: translateY(-6px); }
   .strip-thumb.active:hover { transform: translateY(-6px); }
-  .strip-thumb:hover .strip-label { opacity: 1; }
+  .strip-thumb:hover .strip-label { opacity: 1; z-index: 1; }
+  /* one label at a time: while any thumb is hovered, the active label yields */
+  .filmstrip:has(.strip-thumb:hover) .strip-thumb.active:not(:hover) .strip-label {
+    opacity: 0;
+  }
   input[type='range']:hover::-webkit-slider-thumb { transform: scale(1.25); }
 }
 

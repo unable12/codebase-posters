@@ -15,10 +15,10 @@ export function About({ onClose }: Props) {
 
   return (
     <div className="about-overlay" onClick={onClose} role="dialog" aria-label="about codebase posters">
+      <button className="about-close" onClick={onClose} aria-label="close">
+        ×
+      </button>
       <div className="about-card" onClick={(e) => e.stopPropagation()}>
-        <button className="about-close" onClick={onClose} aria-label="close">
-          ×
-        </button>
         <h1 className="about-wordmark">CODEBASE POSTERS</h1>
         <div className="about-body">
           <p>writing code today is art.</p>
