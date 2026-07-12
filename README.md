@@ -1,7 +1,7 @@
 <p align="center">
   <img src="https://raw.githubusercontent.com/unable12/codebase-posters/main/docs/posters/react-chrono-grid.png" width="30%" alt="react chrono-grid" />
   <img src="https://raw.githubusercontent.com/unable12/codebase-posters/main/docs/posters/zod-constellations.png" width="30%" alt="zod constellations" />
-  <img src="https://raw.githubusercontent.com/unable12/codebase-posters/main/docs/posters/vite-heartbeat.png" width="30%" alt="vite heartbeat" />
+  <img src="https://raw.githubusercontent.com/unable12/codebase-posters/main/docs/posters/vite-heartbeat.gif" width="30%" alt="vite heartbeat, painting itself" />
 </p>
 
 # codebase posters
