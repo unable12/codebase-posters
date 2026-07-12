@@ -44,11 +44,11 @@ const recipe: CanvasRecipe<{
   room: 'time',
   meaning: [
     { label: 'The grid', text: 'Time reads like a page: left to right, top to bottom. The top-left is the first commit, the bottom-right is today. Every file change lands where it happened in that timeline.' },
-    { label: 'Blue-ish strokes (color A)', text: 'Changes that mostly ADDED code. They blow leftward — the force of growth.' },
-    { label: 'Green-ish strokes (color B)', text: 'Changes that mostly DELETED code. They blow rightward — the force of cleanup and rewriting.' },
+    { label: 'Blue-ish strokes (color A)', text: 'Changes that mostly ADDED code. They blow leftward: the force of growth.' },
+    { label: 'Green-ish strokes (color B)', text: 'Changes that mostly DELETED code. They blow rightward: the force of cleanup and rewriting.' },
     { label: 'Stroke size & density', text: 'How big the change was (lines touched, log-scaled). Dense storms = heavy working sessions.' },
     { label: 'Dots with dates', text: 'The top 10% biggest commits. They act as gravity: nearby strokes bend toward them, so a huge commit visibly warps its neighborhood.' },
-    { label: 'Faint background text', text: 'The raw statistics of this repo — commit counts, +/- totals, author shares — tiled like a watermark. The data the painting is made of.' },
+    { label: 'Faint background text', text: 'The raw statistics of this repo (commit counts, +/- totals, author shares) tiled like a watermark. The data the painting is made of.' },
     { label: 'Animation', text: 'Replays history in commit order: you watch the project get built, storm by storm.' },
   ],
   params: {

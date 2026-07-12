@@ -26,7 +26,7 @@ const recipe: CanvasRecipe<
   meaning: [
     { label: 'Seeds', text: 'One seed per file, placed by the same golden-angle rule sunflowers use. The repo grows like a flower head: earliest files at the center, newest at the rim.' },
     { label: 'Seed size', text: 'The file’s size in bytes.' },
-    { label: 'Color blend', text: 'Churn heat — seeds shift toward color A when heavily rewritten, toward color B when written once and left alone. Hot cores and quiet edges become visible.' },
+    { label: 'Color blend', text: 'Churn heat: seeds shift toward color A when heavily rewritten, toward color B when written once and left alone. Hot cores and quiet edges become visible.' },
     { label: 'Names', text: 'The largest files carry their names, like botanical specimens.' },
     { label: 'Animation', text: 'The flower grows: seeds spiral out one by one in creation order.' },
   ],

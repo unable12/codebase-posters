@@ -20,9 +20,9 @@ const recipe: CanvasRecipe<{
   meaning: [
     { label: 'Threads', text: 'Every horizontal bar is one real line from your codebase, in reading order, top to bottom.' },
     { label: 'Left vs right', text: 'Files alternate edges: one file weaves in from the left (color A), the next from the right (color B). Where they interlace, files meet.' },
-    { label: 'Horizontal offset', text: 'The line’s indentation. Deeply nested code steps further from the edge — you can literally see structure and nesting rhythm.' },
+    { label: 'Horizontal offset', text: 'The line’s indentation. Deeply nested code steps further from the edge. You can literally see structure and nesting rhythm.' },
     { label: 'Thread length', text: 'The line’s character length. Prose (markdown) weaves long even threads; code weaves ragged short ones.' },
-    { label: 'Animation', text: 'The loom runs top to bottom — reading the codebase at superhuman speed.' },
+    { label: 'Animation', text: 'The loom runs top to bottom, reading the codebase at superhuman speed.' },
   ],
   params: {
     palette: { type: 'select', label: 'Palette', default: 'cobalt-mint', options: PALETTE_NAMES },

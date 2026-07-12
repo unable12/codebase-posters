@@ -16,13 +16,13 @@ const recipe: CanvasRecipe<{
   engine: 'canvas2d',
   id: '02b-heartbeat',
   name: 'Heartbeat',
-  description: 'The project’s pulse, drawn as one continuous line — calm, effort, and the spikes that mattered.',
+  description: 'The project’s pulse, drawn as one continuous line: calm, effort, and the spikes that mattered.',
   family: 'timeline',
   room: 'time',
   meaning: [
-    { label: 'The line', text: 'One unbroken trace, left to right, first commit to last. Its height at any point is how hard the project was being worked on right then — churn, commit rate, burstiness combined.' },
+    { label: 'The line', text: 'One unbroken trace, left to right, first commit to last. Its height at any point is how hard the project was being worked on right then: churn, commit rate, burstiness combined.' },
     { label: 'Flat stretches', text: 'Silence. Days or weeks where nothing happened. As much a part of the story as the peaks.' },
-    { label: 'Sharp spikes', text: 'The biggest commits — sudden jolts of work, labeled with their dates.' },
+    { label: 'Sharp spikes', text: 'The biggest commits: sudden jolts of work, labeled with their dates.' },
     { label: 'Animation', text: 'The trace draws itself like a hospital monitor, a bright dot riding the tip.' },
   ],
   params: {

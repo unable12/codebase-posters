@@ -34,14 +34,14 @@ const recipe: CanvasRecipe<
   engine: 'canvas2d',
   id: '16-terminal',
   name: 'Terminal',
-  description: 'The repository typed into existence — activity as a field of monospace glyphs.',
+  description: 'The repository typed into existence: activity as a field of monospace glyphs.',
   family: 'texture',
   room: 'texture',
   meaning: [
     { label: 'The grid', text: 'Every cell is a moment in the project\'s life, left-to-right, top-to-bottom.' },
     { label: 'Dense glyphs', text: 'Heavier characters mean more work landed in that moment.' },
     { label: 'Blue vs green', text: 'Cells lean toward the palette\'s A color when additions dominate, B when deletions do.' },
-    { label: 'Reversed dates', text: 'The biggest commits print their date as ink-on-paper blocks — the ASCII version of the dots.' },
+    { label: 'Reversed dates', text: 'The biggest commits print their date as ink-on-paper blocks: the ASCII version of the dots.' },
     { label: 'Animation', text: 'The terminal types chronologically. A block cursor rides the frontier, then vanishes.' },
   ],
   params: {

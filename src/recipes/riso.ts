@@ -85,15 +85,15 @@ const recipe: CanvasRecipe<
   engine: 'canvas2d',
   id: '17-riso',
   name: 'Riso',
-  description: 'The activity landscape as a two-ink risograph — soft hills, hard dots, a whisper of mis-registration.',
+  description: 'The activity landscape as a two-ink risograph: soft hills, hard dots, a whisper of mis-registration.',
   family: 'texture',
   room: 'texture',
   meaning: [
-    { label: 'The medium', text: 'Atkinson dither turned into a risograph print — only paper and two solid inks.' },
+    { label: 'The medium', text: 'Atkinson dither turned into a risograph print: only paper and two solid inks.' },
     { label: 'Two passes', text: 'Channel A (additions) prints first; channel B (deletions) follows, slightly offset like a second drum.' },
     { label: 'Mis-registration', text: 'The offset between inks is the machine\'s signature. Pure overlap reads darker.' },
     { label: 'The hills', text: 'Soft peaks are where work clustered over the project\'s life.' },
-    { label: 'Animation', text: 'A squeegee sweep — ink A top-to-bottom, then ink B — the way a real riso lays down color.' },
+    { label: 'Animation', text: 'A squeegee sweep: ink A top-to-bottom, then ink B, the way a real riso lays down color.' },
   ],
   params: {
     palette: { type: 'select', label: 'Palette', default: 'rose-forest', options: PALETTE_NAMES },

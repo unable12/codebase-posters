@@ -66,15 +66,15 @@ const recipe: CanvasRecipe<
   engine: 'canvas2d',
   id: '12-constellations',
   name: 'Constellations',
-  description: 'Every work session a constellation on a vintage star chart — commits as stars, joined in sequence.',
+  description: 'Every work session a constellation on a vintage star chart: commits as stars, joined in sequence.',
   family: 'timeline',
   room: 'time',
   meaning: [
     { label: 'Stars', text: 'One star per commit, sized by how much it changed. Bright heavy stars are the big commits.' },
-    { label: 'Constellations', text: 'Commits made within two hours of each other belong to one work session — one star sign. The hairlines join them in the order you made them.' },
+    { label: 'Constellations', text: 'Commits made within two hours of each other belong to one work session, one star sign. The hairlines join them in the order you made them.' },
     { label: 'Top to bottom', text: 'Time flows down the chart: earliest sessions near the top, latest near the bottom. Sideways placement is celestial chance.' },
     { label: 'Date marks', text: 'Each constellation carries the date of its first commit, like a named star sign.' },
-    { label: 'Chart furniture', text: 'The fine grid and cross ticks are drawn the way old celestial maps were — ink on cream paper.' },
+    { label: 'Chart furniture', text: 'The fine grid and cross ticks are drawn the way old celestial maps were: ink on cream paper.' },
     { label: 'Animation', text: 'The sky fills in chronologically: stars appear, then the lines that join them.' },
   ],
   params: {

@@ -14,14 +14,14 @@ const recipe: CanvasRecipe<{
   engine: 'canvas2d',
   id: '13-rain',
   name: 'Rain',
-  description: 'Commits as rainfall on an hour-of-day field — the poster of when you actually work.',
+  description: 'Commits as rainfall on an hour-of-day field: the poster of when you actually work.',
   family: 'timeline',
   room: 'time',
   meaning: [
     { label: 'The field', text: 'Across: the 24 hours of a day, midnight to midnight. Down: every calendar day of the repo, first at the top. Each drop lands at the exact hour its commit was made.' },
-    { label: 'Drops & streaks', text: 'One drop per commit; the streak above it is the falling trail — longer for bigger commits. Columns of rain reveal your working hours; a drop far from the others is a 3am fix.' },
+    { label: 'Drops & streaks', text: 'One drop per commit; the streak above it is the falling trail, longer for bigger commits. Columns of rain reveal your working hours; a drop far from the others is a 3am fix.' },
     { label: 'Color', text: 'Color A when the commit mostly added code, color B when it mostly deleted.' },
-    { label: 'Splashes', text: 'The biggest commits land hard enough to splash — ringed like rain on pavement.' },
+    { label: 'Splashes', text: 'The biggest commits land hard enough to splash, ringed like rain on pavement.' },
     { label: 'Animation', text: 'The storm replays chronologically: each drop falls from the top of the poster to its hour.' },
   ],
   params: {
