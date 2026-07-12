@@ -3,6 +3,7 @@ import type { RepoDataset, RepoListing } from '../core/schema';
 import { recipes } from '../core/registry';
 import { fetchDataset, fetchRepos } from './api';
 import { Exhibition } from './Exhibition';
+import { About } from './About';
 
 export function App() {
   const [repos, setRepos] = useState<RepoListing[]>([]);
@@ -10,6 +11,7 @@ export function App() {
   const [data, setData] = useState<RepoDataset | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState(0);
+  const [aboutOpen, setAboutOpen] = useState(false);
 
   useEffect(() => {
     fetchRepos()
@@ -43,9 +45,10 @@ export function App() {
   return (
     <div className="app">
       <div className="topbar">
-        <div className="topbar-side" />
-        <div className="topbar-center">
-          <h1>CODEBASE POSTERS</h1>
+        <div className="topbar-repo">
+          <span className="repo-prefix" aria-hidden>
+            ~/
+          </span>
           {repos.length === 1 ? (
             <span className="repo-name">{repos[0].name}</span>
           ) : (
@@ -64,7 +67,12 @@ export function App() {
             </span>
           )}
         </div>
-        <div className="topbar-side" />
+        <div className="topbar-right">
+          <h1>CODEBASE POSTERS</h1>
+          <button className="about-link" onClick={() => setAboutOpen(true)}>
+            about
+          </button>
+        </div>
       </div>
 
       {error && <div className="status">error: {error}</div>}
@@ -98,6 +106,8 @@ export function App() {
       )}
 
       {data && <Exhibition data={data} selected={selected} onSelect={setSelected} />}
+
+      {aboutOpen && <About onClose={() => setAboutOpen(false)} />}
     </div>
   );
 }
