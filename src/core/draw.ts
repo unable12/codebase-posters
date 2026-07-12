@@ -177,7 +177,7 @@ export function typographyFooter(
   ctx.lineTo(bx + 170, by + 32);
   ctx.stroke();
 
-  // maker's mark: bottom-left, whisper-quiet, arrives with the signature
+  // maker's mark, bottom-left
   ctx.font = '15px ui-monospace, Menlo, monospace';
   ctx.fillStyle = rgba(inkColor, 0.35);
   ctx.fillText('made with codebase-posters', 130, y + 32);

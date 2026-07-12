@@ -2,7 +2,7 @@ import type { CanvasRecipe } from '../core/types';
 import { dataTexture, grain, palette, PALETTE_NAMES, paper, reveal, rgba, sprayStroke, typographyFooter } from '../core/draw';
 import type { DaySlice } from '../core/schema';
 
-// A calendar diary: EVERY day in the repo's date range gets a cell — active
+// A calendar diary: every day in the repo's date range gets a cell — active
 // days become small storm cards, silent days stay as faint ghost outlines.
 // Cell size adapts to the span so 12 days reads as a contact sheet and 271
 // days as dense confetti; the grid block is centered on the paper.

@@ -75,7 +75,7 @@ const recipe: CanvasRecipe<{
       pts.push({ x: margin + u * innerW, y, u });
     }
 
-    // baseline whisper
+    // faint baseline
     ctx.strokeStyle = rgba(pal.ink, 0.12);
     ctx.lineWidth = 1;
     ctx.beginPath();

@@ -1,6 +1,6 @@
 // Zero-dependency production server for `npx codebase-posters`.
 // Serves the prebuilt frontend and exposes the extraction API for exactly
-// ONE repository — the one the CLI was launched in. Everything stays local:
+// one repository, the one the CLI was launched in. Everything stays local:
 // binds to loopback only, validates the Host header (DNS-rebinding guard),
 // ignores any path parameters, writes nothing to disk.
 

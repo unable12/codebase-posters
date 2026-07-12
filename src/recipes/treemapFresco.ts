@@ -131,7 +131,7 @@ const recipe: CanvasRecipe<
       const w = Math.max(2, tile.w - params.gap);
       const h = Math.max(2, tile.h - params.gap);
 
-      // painted fill: each coat is BRUSHED across the tile — a wobbly wet
+      // painted fill: each coat is brushed across the tile — a wobbly wet
       // edge sweeps along the long axis, alternating direction per coat
       for (let layer = 0; layer < 4; layer++) {
         const coat = Math.max(0, Math.min(1, (fade - layer * 0.22) / 0.3));
