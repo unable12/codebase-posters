@@ -34,85 +34,24 @@ export function Detail({ recipe, data, index, total, onBack, onNavigate }: Props
   const [seed, setSeed] = useState(1);
   const [t, setT] = useState(1);
   const [playing, setPlaying] = useState(false);
-  /** When true, playLoop runs once and stops at t=1 (autoplay). Manual play loops. */
-  const [playOnce, setPlayOnce] = useState(false);
   const [duration, setDuration] = useState(7);
   const [busy, setBusy] = useState<'image' | 'animation' | null>(null);
   const [done, setDone] = useState<'image' | 'animation' | null>(null);
   const [editing, setEditing] = useState(false);
   const [bleed, setBleed] = useState(false);
   const [labelSwap, setLabelSwap] = useState<'image' | 'animation' | null>(null);
-  const [canvasFading, setCanvasFading] = useState(false);
 
   const renderParams = useDebounced(params, 150);
   const renderSeed = useDebounced(seed, 150);
 
-  const autoplayTimers = useRef<number[]>([]);
-  const autoplayActiveRef = useRef(false);
   const doneTimer = useRef<number | null>(null);
   const imageLabelMounted = useRef(false);
   const videoLabelMounted = useRef(false);
 
-  const clearAutoplayTimers = () => {
-    for (const id of autoplayTimers.current) window.clearTimeout(id);
-    autoplayTimers.current = [];
-  };
-
-  /** Abort the first-open sequence and land on the finished poster. No-op if idle. */
-  const cancelAutoplay = () => {
-    clearAutoplayTimers();
-    setCanvasFading(false);
-    if (!autoplayActiveRef.current) return;
-    autoplayActiveRef.current = false;
-    setPlayOnce(false);
-    setPlaying(false);
-    setT(1);
-  };
-
   useEffect(() => {
     if (!playing) return;
-    return playLoop(
-      duration * 1000,
-      (next) => {
-        setT(next);
-        if (playOnce && next >= 1) {
-          autoplayActiveRef.current = false;
-          setPlaying(false);
-          setPlayOnce(false);
-        }
-      },
-      !playOnce,
-    );
-  }, [playing, duration, playOnce]);
-
-  // Every open performs once: show the finished piece → fade to paper →
-  // paint it in front of you → rest at t=1. Any interaction cancels.
-  useEffect(() => {
-    if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      return;
-    }
-    autoplayActiveRef.current = true;
-
-    const fadeAt = window.setTimeout(() => {
-      setCanvasFading(true);
-      // fade-out done: swap to the blank t=0 frame WHILE still hidden…
-      const swapBlank = window.setTimeout(() => {
-        setT(0);
-        // …give the blank frame a beat to actually paint, then reveal and play.
-        // (Revealing in the same commit flashed the old finished frame — the blink.)
-        const revealAndPlay = window.setTimeout(() => {
-          setCanvasFading(false);
-          setPlayOnce(true);
-          setPlaying(true);
-        }, 120);
-        autoplayTimers.current.push(revealAndPlay);
-      }, 260);
-      autoplayTimers.current.push(swapBlank);
-    }, 840); // morph (~340ms) + a breath on the finished piece
-    autoplayTimers.current.push(fadeAt);
-
-    return () => clearAutoplayTimers();
-  }, []);
+    return playLoop(duration * 1000, setT);
+  }, [playing, duration]);
 
   const imageLabel =
     busy === 'image' ? 'saving…' : done === 'image' ? 'saved ✓' : 'Save print';
@@ -158,22 +97,12 @@ export function Detail({ recipe, data, index, total, onBack, onNavigate }: Props
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLSelectElement) return;
-      if (e.key === 'ArrowLeft') {
-        cancelAutoplay();
-        onNavigate(-1);
-      } else if (e.key === 'ArrowRight') {
-        cancelAutoplay();
-        onNavigate(1);
-      } else if (e.key === 'Escape') {
-        cancelAutoplay();
-        onBack();
-      } else if (e.key === ' ') {
+      if (e.key === 'ArrowLeft') onNavigate(-1);
+      else if (e.key === 'ArrowRight') onNavigate(1);
+      else if (e.key === 'Escape') onBack();
+      else if (e.key === ' ') {
         e.preventDefault();
-        if (autoplayActiveRef.current) {
-          cancelAutoplay();
-        } else {
-          setPlaying((p) => !p);
-        }
+        setPlaying((p) => !p);
       }
     };
     window.addEventListener('keydown', onKey);
@@ -217,19 +146,14 @@ export function Detail({ recipe, data, index, total, onBack, onNavigate }: Props
     }
   };
 
-  const navigate = (dir: number) => {
-    cancelAutoplay();
-    onNavigate(dir);
-  };
-
   return (
     <div className="detail">
-      <button className="nav-arrow" onClick={() => navigate(-1)} title="previous (←)">
+      <button className="nav-arrow" onClick={() => onNavigate(-1)} title="previous (←)">
         ‹
       </button>
 
       <div className="stage">
-        <div className={`stage-canvas ${canvasFading ? 'fading' : ''}`}>
+        <div className="stage-canvas">
           <RecipeCanvas
             recipe={recipe}
             data={data}
