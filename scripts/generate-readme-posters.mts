@@ -25,7 +25,7 @@ const POSTERS = [
   { repoPath: process.env.VITE_REPO ?? '/tmp/codebase-posters-clones/vite', recipe: heartbeat, seed: 11, slug: 'vite-heartbeat' },
   { repoPath: process.env.ZOD_REPO ?? '/tmp/codebase-posters-clones/zod', recipe: constellations, seed: 5, slug: 'zod-constellations' },
   { repoPath: process.env.TAILWIND_REPO ?? '/tmp/codebase-posters-clones/tailwindcss', recipe: posterPerDay, seed: 2, slug: 'tailwind-poster-per-day' },
-  { repoPath: process.env.LINUX_REPO ?? '/tmp/codebase-posters-clones/linux', recipe: ridgelines, seed: 1, slug: 'linux-ridgelines' },
+  { repoPath: process.env.GIT_REPO ?? '/tmp/codebase-posters-clones/git-scm', recipe: ridgelines, seed: 1, slug: 'git-ridgelines' },
 ] as const;
 
 const OUT_DIR = join(import.meta.dirname, '..', 'docs', 'posters');

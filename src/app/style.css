@@ -149,23 +149,6 @@ body {
   font-style: italic;
   padding-bottom: 4px;
 }
-.orient-note {
-  grid-column: 1 / -1;
-  font: inherit;
-  font-size: 13px;
-  font-style: italic;
-  color: #7a7568;
-  background: none;
-  border: none;
-  padding: 0 0 4px;
-  text-align: left;
-  cursor: pointer;
-  opacity: 1;
-  transition: opacity var(--dur-swap) ease;
-}
-.orient-note.leaving {
-  opacity: 0;
-}
 .skeleton-card {
   aspect-ratio: 3 / 4;
   background: #f2ede4;

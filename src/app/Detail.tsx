@@ -19,9 +19,6 @@ function useDebounced<T>(value: T, ms: number): T {
   return debounced;
 }
 
-/** First detail open per page load only — survives Detail remounts across posters. */
-let hasAutoplayed = false;
-
 interface Props {
   recipe: Recipe;
   data: RepoDataset;
@@ -88,26 +85,30 @@ export function Detail({ recipe, data, index, total, onBack, onNavigate }: Props
     );
   }, [playing, duration, playOnce]);
 
-  // First-open autoplay: morph + hold → fade to paper → paint once → rest at t=1
+  // Every open performs once: show the finished piece → fade to paper →
+  // paint it in front of you → rest at t=1. Any interaction cancels.
   useEffect(() => {
-    if (hasAutoplayed) return;
     if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      hasAutoplayed = true;
       return;
     }
-    hasAutoplayed = true;
     autoplayActiveRef.current = true;
 
     const fadeAt = window.setTimeout(() => {
       setCanvasFading(true);
-      const startPlay = window.setTimeout(() => {
-        setCanvasFading(false);
+      // fade-out done: swap to the blank t=0 frame WHILE still hidden…
+      const swapBlank = window.setTimeout(() => {
         setT(0);
-        setPlayOnce(true);
-        setPlaying(true);
-      }, 250);
-      autoplayTimers.current.push(startPlay);
-    }, 840); // morph (~340ms) + hold (~500ms)
+        // …give the blank frame a beat to actually paint, then reveal and play.
+        // (Revealing in the same commit flashed the old finished frame — the blink.)
+        const revealAndPlay = window.setTimeout(() => {
+          setCanvasFading(false);
+          setPlayOnce(true);
+          setPlaying(true);
+        }, 120);
+        autoplayTimers.current.push(revealAndPlay);
+      }, 260);
+      autoplayTimers.current.push(swapBlank);
+    }, 840); // morph (~340ms) + a breath on the finished piece
     autoplayTimers.current.push(fadeAt);
 
     return () => clearAutoplayTimers();
