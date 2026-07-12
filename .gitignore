@@ -5,3 +5,4 @@ data-cache/
 *.tgz
 tsconfig.tsbuildinfo
 .claude/settings.local.json
+.claude/
