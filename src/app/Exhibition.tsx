@@ -47,12 +47,12 @@ export function Exhibition({ data, selected, onSelect }: Props) {
   const imageLabelMounted = useRef(false);
   const videoLabelMounted = useRef(false);
 
-  // remount piece controls when the selected recipe changes
+  // reset piece-specific controls when the selected recipe changes;
+  // t and playing carry over so switching pieces keeps the moment
+  // (a playing animation keeps playing on the next poster)
   useEffect(() => {
     setParams(defaultParams(recipe.params));
     setSeed(1);
-    setT(1);
-    setPlaying(false);
     setEditing(false);
     setBleed(false);
     setBusy(null);
