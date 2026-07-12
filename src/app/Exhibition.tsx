@@ -46,6 +46,8 @@ export function Exhibition({ data, selected, onSelect }: Props) {
   const doneTimer = useRef<number | null>(null);
   const imageLabelMounted = useRef(false);
   const videoLabelMounted = useRef(false);
+  const recipeIdRef = useRef(recipe.id);
+  recipeIdRef.current = recipe.id;
 
   // reset piece state when the selected recipe changes: every poster is
   // presented finished (t=1) and at rest; play belongs to the piece it
@@ -63,7 +65,14 @@ export function Exhibition({ data, selected, onSelect }: Props) {
 
   useEffect(() => {
     if (!playing) return;
-    return playLoop(duration * 1000, setT);
+    // the loop belongs to the piece it started on: after a switch, a few
+    // stale animation frames can still fire before this effect is cleaned
+    // up — they must not overwrite the fresh piece's t=1 reset
+    const startedFor = recipeIdRef.current;
+    return playLoop(duration * 1000, (next) => {
+      if (recipeIdRef.current !== startedFor) return;
+      setT(next);
+    });
   }, [playing, duration]);
 
   const imageLabel =
