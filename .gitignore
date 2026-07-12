@@ -6,3 +6,4 @@ data-cache/
 tsconfig.tsbuildinfo
 .claude/settings.local.json
 .claude/
+launch-assets/

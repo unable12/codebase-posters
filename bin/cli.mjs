@@ -34,9 +34,9 @@ options:
 
 privacy:
   everything runs locally. your code and git history never leave
-  your machine — no uploads, no telemetry, no disk writes.
+  your machine. no uploads, no telemetry, no disk writes.
 
-made by kamil — x.com/unable0_
+made by kamil · x.com/unable0_
 `);
   process.exit(0);
 }
@@ -61,7 +61,7 @@ try {
 try {
   await run('git', ['rev-parse', 'HEAD'], { cwd: repoPath });
 } catch {
-  console.error('\n  this repository has no commits yet — make one, then paint it.\n');
+  console.error('\n  this repository has no commits yet. make one, then paint it.\n');
   process.exit(1);
 }
 

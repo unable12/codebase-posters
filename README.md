@@ -15,7 +15,7 @@ this paints it.
     npx codebase-posters
 
 one command, inside any git repo.
-your browser opens an exhibition: thirteen posters, painted live from your commit history.
+your browser opens an exhibition: eighteen posters, painted live from your commit history.
 storms of additions and deletions. your working days as a calendar. the project's
 heartbeat. the constellations you committed at 2am.
 

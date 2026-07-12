@@ -2,7 +2,7 @@ import type { CanvasRecipe } from '../core/types';
 import { grain, palette, PALETTE_NAMES, paper, reveal, rgba, typographyFooter } from '../core/draw';
 
 // The repo typeset as monospace glyphs — activity as character density.
-// dataTexture omitted: the piece IS text (see PLAN_V3 §3.1).
+// dataTexture omitted: the piece IS text.
 
 const RAMPS: Record<string, string> = {
   classic: ' .:-=+*#%@',
