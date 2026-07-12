@@ -19,7 +19,7 @@ if (args.includes('--version') || args.includes('-v')) {
 }
 if (args.includes('--help') || args.includes('-h')) {
   console.log(`
-codebase-posters — your repository as generative art
+codebase-posters · your repository as generative art
 
 usage:
   npx codebase-posters [path] [options]
@@ -74,11 +74,12 @@ const actualPort = await startStandalone({
 
 const url = `http://127.0.0.1:${actualPort}`;
 console.log(`
-  CODEBASE POSTERS — your repository as generative art
+  CODEBASE POSTERS · your repository as generative art
 
   repo:     ${repoPath}
-  gallery:  ${url}
-  privacy:  everything runs locally. nothing is uploaded, nothing is written.
+  gallery:  ${url} (localhost only)
+  reads:    commit history and file tree, via your local git
+  privacy:  nothing is uploaded, nothing is written, no telemetry
 
   press ctrl+c to close the gallery.
 `);
