@@ -32,7 +32,8 @@ export function Filmstrip({ data, selected, onSelect }: Props) {
       onWheel={(e) => {
         const el = stripRef.current;
         if (!el) return;
-        el.scrollLeft += e.deltaY + e.deltaX;
+        // Native scroll already consumes deltaX; only map vertical wheel → strip.
+        el.scrollLeft += e.deltaY;
       }}
     >
       {recipes.map((r, i) => {
