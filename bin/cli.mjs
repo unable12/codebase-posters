@@ -4,7 +4,7 @@
 
 import { execFile } from 'node:child_process';
 import { readFileSync } from 'node:fs';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
 import { promisify } from 'node:util';
 
@@ -65,7 +65,8 @@ try {
   process.exit(1);
 }
 
-const { startStandalone } = await import(join(here, '..', 'dist', 'server.mjs'));
+const serverUrl = pathToFileURL(join(here, '..', 'dist', 'server.mjs')).href;
+const { startStandalone } = await import(serverUrl);
 const actualPort = await startStandalone({
   repoPath,
   appDir: join(here, '..', 'dist', 'app'),
