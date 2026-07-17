@@ -1,6 +1,6 @@
 {
   "name": "codebase-posters",
-  "version": "0.6.2",
+  "version": "0.7.0",
   "description": "Your repository as generative art. Run one command, watch your codebase paint itself into a poster. 100% local, nothing leaves your machine.",
   "keywords": [
     "git",
