@@ -451,7 +451,7 @@ const recipe: CanvasRecipe<
     },
     {
       label: 'Frontiers & ghosts',
-      text: 'Ringed nodes are first steps into files never touched before. Faint dashed rays at sharp pivots are the roads not taken. Strokes through abandoned corners fade back toward the paper — thoughts the project stopped thinking.',
+      text: 'Ringed nodes are first steps into files never touched before. Faint dashed rays at sharp pivots are the roads not taken. Strokes through abandoned corners fade back toward the paper: thoughts the project stopped thinking.',
     },
     {
       label: 'Animation',
