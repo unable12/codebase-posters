@@ -26,6 +26,22 @@ export function defaultParams(schema: ParamSchema): AnyParams {
   return out;
 }
 
+const defaultsCache = new WeakMap<ParamSchema, AnyParams>();
+
+/**
+ * Shared, identity-stable defaults for a schema. Params are only ever updated
+ * by copy (spread), so the shared object is safe to pass around — and its
+ * stable identity keeps memoized renders (thumbnails) from re-firing.
+ */
+export function sharedDefaultParams(schema: ParamSchema): AnyParams {
+  let hit = defaultsCache.get(schema);
+  if (!hit) {
+    hit = defaultParams(schema);
+    defaultsCache.set(schema, hit);
+  }
+  return hit;
+}
+
 /** Everything a recipe gets per render call. width/height are DESIGN units (host pre-scales). */
 export interface Frame {
   width: number;

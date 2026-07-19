@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { RepoDataset } from '../core/schema';
 import type { AnyParams } from '../core/types';
-import { defaultParams } from '../core/types';
+import { defaultParams, sharedDefaultParams } from '../core/types';
 import { recipes } from '../core/registry';
 import { playLoop } from '../core/renderHost';
 import { RecipeCanvas } from './RecipeCanvas';
@@ -52,8 +52,10 @@ export function Exhibition({ data, selected, onSelect }: Props) {
   const [labelSwap, setLabelSwap] = useState<'image' | 'animation' | null>(null);
 
   const debounced = useDebounced(piece, 150);
+  // sharedDefaultParams: identity-stable, so the fallback during the debounce
+  // window doesn't retrigger the canvas effect on every render.
   const renderParams =
-    debounced.id === recipe.id ? debounced.params : defaultParams(recipe.params);
+    debounced.id === recipe.id ? debounced.params : sharedDefaultParams(recipe.params);
   const renderSeed = useDebounced(seed, 150);
 
   const doneTimer = useRef<number | null>(null);
