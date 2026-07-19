@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react';
+import { memo, useEffect, useRef } from 'react';
 import type { RepoDataset } from '../core/schema';
-import { defaultParams } from '../core/types';
+import { sharedDefaultParams } from '../core/types';
 import { recipes, roomOf } from '../core/registry';
 import { RecipeCanvas } from './RecipeCanvas';
 
@@ -10,7 +10,9 @@ interface Props {
   onSelect: (i: number) => void;
 }
 
-export function Filmstrip({ data, selected, onSelect }: Props) {
+// memo: the strip re-renders only when the repo or selection changes — not on
+// every playback tick or slider drag in the detail view.
+export const Filmstrip = memo(function Filmstrip({ data, selected, onSelect }: Props) {
   const stripRef = useRef<HTMLDivElement>(null);
   const thumbRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
@@ -59,7 +61,7 @@ export function Filmstrip({ data, selected, onSelect }: Props) {
               <RecipeCanvas
                 recipe={r}
                 data={data}
-                params={defaultParams(r.params)}
+                params={sharedDefaultParams(r.params)}
                 seed={1}
                 t={1}
                 pixelWidth={180}
@@ -73,4 +75,4 @@ export function Filmstrip({ data, selected, onSelect }: Props) {
       })}
     </div>
   );
-}
+});

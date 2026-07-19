@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { memo, useEffect, useRef } from 'react';
 import type { RepoDataset } from '../core/schema';
 import type { AnyParams, Recipe } from '../core/types';
 import { DESIGN_HEIGHT, DESIGN_WIDTH } from '../core/types';
@@ -45,7 +45,7 @@ interface Props {
   onClick?: () => void;
 }
 
-export function RecipeCanvas({ recipe, data, params, seed, t, pixelWidth, queued, draft, quality: qualityProp, onClick }: Props) {
+export const RecipeCanvas = memo(function RecipeCanvas({ recipe, data, params, seed, t, pixelWidth, queued, draft, quality: qualityProp, onClick }: Props) {
   const ref = useRef<HTMLCanvasElement>(null);
   const jobRef = useRef<Job | null>(null);
   const width = draft ? Math.round(pixelWidth / 2) : pixelWidth;
@@ -55,8 +55,20 @@ export function RecipeCanvas({ recipe, data, params, seed, t, pixelWidth, queued
     const canvas = ref.current;
     if (!canvas) return;
     if (!queued) {
-      renderFrame(canvas, recipe, data, params, seed, t, { quality });
-      return;
+      if (quality < 1) {
+        renderFrame(canvas, recipe, data, params, seed, t, { quality });
+        return;
+      }
+      // Progressive detail render: paint a cheap preview right away so the
+      // click/scrub stays responsive, and run the expensive full-quality pass
+      // only once the interaction settles. Rapid changes (scrubbing t, poster
+      // hopping) keep cancelling the pending pass, so only previews render
+      // until the user pauses.
+      renderFrame(canvas, recipe, data, params, seed, t, { quality: 0.35 });
+      const id = window.setTimeout(() => {
+        if (ref.current) renderFrame(ref.current, recipe, data, params, seed, t, { quality: 1 });
+      }, 120);
+      return () => window.clearTimeout(id);
     }
     // replace any not-yet-run job for this canvas instead of stacking stale ones
     if (jobRef.current) {
@@ -90,4 +102,4 @@ export function RecipeCanvas({ recipe, data, params, seed, t, pixelWidth, queued
       onClick={onClick}
     />
   );
-}
+});
